@@ -1,0 +1,17 @@
+[
+  {"id":"jansetu-slide-01","position":1,"filepath":"src/pages/slides/Slide1.tsx","title":"JanSetu AI","description":"From citizen voice to national infrastructure action.","speakerNotes":""},
+  {"id":"jansetu-slide-02","position":2,"filepath":"src/pages/slides/Slide2.tsx","title":"The signal is everywhere. The system is fragmented.","description":"The problem.","speakerNotes":""},
+  {"id":"jansetu-slide-03","position":3,"filepath":"src/pages/slides/Slide3.tsx","title":"The opportunity: make every request decision-ready","description":"The opportunity.","speakerNotes":""},
+  {"id":"jansetu-slide-04","position":4,"filepath":"src/pages/slides/Slide4.tsx","title":"Meet JanSetu AI","description":"A public-interest intelligence layer.","speakerNotes":""},
+  {"id":"jansetu-slide-05","position":5,"filepath":"src/pages/slides/Slide5.tsx","title":"A citizen starts with what they have","description":"Citizen intake.","speakerNotes":""},
+  {"id":"jansetu-slide-06","position":6,"filepath":"src/pages/slides/Slide6.tsx","title":"The AI pipeline turns noise into structure","description":"The AI pipeline.","speakerNotes":""},
+  {"id":"jansetu-slide-07","position":7,"filepath":"src/pages/slides/Slide7.tsx","title":"The policy view: hotspots, not anecdotes","description":"Policy view.","speakerNotes":""},
+  {"id":"jansetu-slide-08","position":8,"filepath":"src/pages/slides/Slide8.tsx","title":"Prioritisation is explainable by design","description":"Explainable prioritisation.","speakerNotes":""},
+  {"id":"jansetu-slide-09","position":9,"filepath":"src/pages/slides/Slide9.tsx","title":"Prototype walkthrough: one request, one recommendation","description":"Prototype walkthrough.","speakerNotes":""},
+  {"id":"jansetu-slide-10","position":10,"filepath":"src/pages/slides/Slide10.tsx","title":"Built as a Digital Public Good","description":"Open and reusable by design.","speakerNotes":""},
+  {"id":"jansetu-slide-11","position":11,"filepath":"src/pages/slides/Slide11.tsx","title":"Trust is a product feature","description":"Governance safeguards.","speakerNotes":""},
+  {"id":"jansetu-slide-12","position":12,"filepath":"src/pages/slides/Slide12.tsx","title":"A modular architecture that can scale","description":"Platform architecture.","speakerNotes":""},
+  {"id":"jansetu-slide-13","position":13,"filepath":"src/pages/slides/Slide13.tsx","title":"Pilot plan: prove value where the signal is strongest","description":"Three-phase pilot plan.","speakerNotes":""},
+  {"id":"jansetu-slide-14","position":14,"filepath":"src/pages/slides/Slide14.tsx","title":"What success looks like","description":"Outcome.","speakerNotes":""},
+  {"id":"jansetu-slide-15","position":15,"filepath":"src/pages/slides/Slide15.tsx","title":"Help us build the bridge","description":"Closing and invitation.","speakerNotes":""}
+]
