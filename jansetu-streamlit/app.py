@@ -101,6 +101,90 @@ RECOMMENDATIONS = [
 ]
 
 
+THEME_KEYWORDS = {
+    "Water access": ["water", "paani", "पानी", "tanker", "drinking", "jal", "well", "handpump"],
+    "Roads": ["road", "sadak", "सड़क", "street", "highway", "pothole", "bridge", "connectivity"],
+    "Public safety": ["safety", "unsafe", "danger", "light", "streetlight", "crime", "women", "night", "andhera"],
+    "Healthcare": ["health", "hospital", "clinic", "doctor", "medicine", "swasthya", "स्वास्थ्य", "স্বাস্থ্যকেন্দ্র", "healthcare"],
+    "Electricity": ["electricity", "power cut", "bijli", "बिजली", "outage", "transformer", "voltage"],
+    "Education": ["school", "teacher", "education", "shiksha", "शिक्षा", "college", "classroom"],
+}
+
+THEME_ACTION_TEMPLATES = {
+    "Water access": ("Add community water points", 1.45),
+    "Roads": ("Repair and surface the access road", 5.0),
+    "Public safety": ("Install a solar lighting corridor", 1.2),
+    "Healthcare": ("Set up a primary health outreach point", 3.0),
+    "Electricity": ("Upgrade local transformer capacity", 2.5),
+    "Education": ("Improve school facility access", 2.0),
+}
+
+
+def classify_theme(text: str) -> str:
+    """Transparent keyword-rule classifier. Not ML — every match is traceable."""
+    lowered = text.lower()
+    for theme, keywords in THEME_KEYWORDS.items():
+        if any(keyword.lower() in lowered for keyword in keywords):
+            return theme
+    return "Needs triage"
+
+
+def detect_language(text: str):
+    """Very small script-range heuristic so the demo can show auto-detection."""
+    for char in text:
+        code = ord(char)
+        if 0x0900 <= code <= 0x097F:
+            return "Hindi"
+        if 0x0980 <= code <= 0x09FF:
+            return "Bengali"
+        if 0x0B80 <= code <= 0x0BFF:
+            return "Tamil"
+        if 0x0600 <= code <= 0x06FF:
+            return "Urdu"
+    return None
+
+
+def estimate_urgency(text: str) -> str:
+    lowered = text.lower()
+    markers = [
+        "never", "not working", "months", "years", "unsafe", "danger",
+        "emergency", "urgent", "बंद", "नहीं", "खतरा", "no water", "no light",
+    ]
+    return "High priority" if any(marker in lowered for marker in markers) else "Standard"
+
+
+def generate_live_recommendations() -> list:
+    """Rule-based scoring computed from whatever is in the session right now —
+    this is what makes a signal submitted in Citizen intake actually show up here."""
+    counts = {}
+    for item in st.session_state.requests:
+        theme = item.get("theme", "Needs triage")
+        if theme in THEME_ACTION_TEMPLATES:
+            counts[theme] = counts.get(theme, 0) + 1
+
+    live_recs = []
+    for theme, count in sorted(counts.items(), key=lambda pair: pair[1], reverse=True):
+        action, cost_factor = THEME_ACTION_TEMPLATES[theme]
+        score = min(95, 40 + count * 8)
+        confidence = (
+            "High confidence" if score >= 80
+            else "Needs field check" if score >= 60
+            else "Early signal"
+        )
+        live_recs.append(
+            {
+                "id": f"LIVE-{theme[:3].upper()}",
+                "title": action,
+                "type": theme,
+                "confidence": confidence,
+                "score": score,
+                "budget": f"₹{round(count * cost_factor, 1)} lakh (indicative)",
+                "basis": f"{count} citizen signal(s) in this session",
+            }
+        )
+    return live_recs
+
+
 def init_state() -> None:
     if "requests" not in st.session_state:
         st.session_state.requests = list(BASE_REQUESTS)
@@ -191,6 +275,13 @@ def render_hotspots() -> None:
             st.rerun()
 
 
+def render_live_pulse() -> None:
+    st.subheader("Live signal pulse")
+    st.caption("Recomputed from every signal in this session — including what you just submitted.")
+    counts = pd.Series([item.get("theme", "Needs triage") for item in st.session_state.requests]).value_counts()
+    st.bar_chart(counts)
+
+
 def render_control_room() -> None:
     render_header("Control room")
     render_loop()
@@ -198,6 +289,8 @@ def render_control_room() -> None:
     render_metrics()
     st.divider()
     render_hotspots()
+    st.divider()
+    render_live_pulse()
     st.divider()
     st.success(
         "Three recommendations are ready for human review. "
@@ -262,19 +355,32 @@ def render_intake() -> None:
         elif not message.strip() and channel != "Voice note":
             st.error("Add a short message so the planning team can understand the need.")
         else:
+            quote_text = message.strip() or "Voice note captured — local need shared with JanSetu."
+            detected_theme = classify_theme(quote_text)
+            detected_language = detect_language(quote_text) or language
+            urgency = estimate_urgency(quote_text)
             new_request = {
                 "id": f"SIG-{2050 + len(st.session_state.requests)}",
-                "quote": message.strip() or "Voice note captured — local need shared with JanSetu.",
-                "summary": "New citizen signal awaiting AI structuring",
-                "language": language,
+                "quote": quote_text,
+                "summary": f"{detected_theme} concern raised in {place or 'Rajasthan'}",
+                "language": detected_language,
                 "channel": channel,
                 "place": place or "Demo location · Rajasthan",
                 "time": "just now",
-                "status": "New signal",
-                "theme": "Needs triage",
+                "status": "Structured",
+                "theme": detected_theme,
+                "urgency": urgency,
             }
             st.session_state.requests.insert(0, new_request)
-            st.success("Signal received and added to the evidence stream.")
+            st.success(
+                f"Signal structured: theme = **{detected_theme}** · "
+                f"language = **{detected_language}** · urgency = **{urgency}**"
+            )
+            st.caption(
+                "Structuring here uses transparent keyword rules, not a black-box model — "
+                "every classification traces back to the words used. Check Recommendations "
+                "to see this signal already counted."
+            )
             st.session_state.page_override = "Evidence library"
 
     st.info(
@@ -301,11 +407,12 @@ def render_evidence() -> None:
     st.caption(f"{len(filtered)} signal(s) shown · demo dataset")
     for item in filtered:
         with st.expander(f"{item['id']} · {item['summary']} · {item['status']}"):
-            columns = st.columns([1.5, 1, 1, 1])
+            columns = st.columns([1.4, 0.8, 0.8, 1, 0.8])
             columns[0].write(f"**Original wording**\n\n{item['quote']}")
             columns[1].write(f"**Language**\n\n{item['language']}")
             columns[2].write(f"**Channel**\n\n{item['channel']}")
             columns[3].write(f"**Location**\n\n{item['place']}")
+            columns[4].write(f"**Urgency**\n\n{item.get('urgency', 'Standard')}")
 
 
 def render_recommendations() -> None:
@@ -342,6 +449,27 @@ def render_recommendations() -> None:
                     "This is a demo explanation, not a final allocation decision. "
                     "A field check and public planning review are required."
                 )
+
+    st.divider()
+    st.subheader("Live, from this session")
+    st.caption(
+        "Generated on the fly from whatever signals exist right now, including anything "
+        "you just submitted in Citizen intake. Rule-based scoring, shown transparently."
+    )
+    live_recommendations = generate_live_recommendations()
+    if not live_recommendations:
+        st.info("No live signals yet — submit one from Citizen intake to see it scored here.")
+    for item in live_recommendations:
+        with st.container(border=True):
+            columns = st.columns([3.2, 1, 1])
+            with columns[0]:
+                st.caption(f"{item['id']} · {item['type']}")
+                st.write(f"### {item['title']}")
+                st.write(item["basis"])
+            with columns[1]:
+                st.metric("Priority score", item["score"], item["confidence"])
+            with columns[2]:
+                st.metric("Indicative budget", item["budget"])
 
 
 init_state()
