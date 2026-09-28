@@ -6,10 +6,50 @@ import streamlit as st
 
 st.set_page_config(
     page_title="JanSetu AI — Public Intelligence",
-    page_icon="◉",
+    page_icon="🌉",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+
+LOGO_SVG = """
+<svg width="{size}" height="{size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="JanSetu AI logo">
+  <rect width="64" height="64" rx="15" fill="#15313a"/>
+  <path d="M9 43 Q32 8 55 43" stroke="#e86f3d" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <line x1="7" y1="47" x2="57" y2="47" stroke="#f4f0e8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="21" y1="47" x2="21" y2="30" stroke="#178f8b" stroke-width="3" stroke-linecap="round"/>
+  <line x1="43" y1="47" x2="43" y2="30" stroke="#178f8b" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="22" r="4.5" fill="#f4f0e8"/>
+</svg>
+"""
+
+BRAND_CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+html, body, .stApp, [data-testid="stAppViewContainer"] { font-family: 'DM Sans', sans-serif; }
+h1, h2, h3 { font-family: 'Instrument Serif', Georgia, serif !important; font-weight: 400 !important; letter-spacing: -0.01em; }
+h1 { font-size: 3.1rem !important; line-height: 1.05 !important; }
+[data-testid="stSidebar"] { background: #15313a; }
+[data-testid="stSidebar"] * { color: #f4f0e8; }
+[data-testid="stSidebar"] hr { border-color: rgba(244,240,232,.18); }
+[data-testid="stMetric"] { background: #fffaf0; border: 1px solid #d8d1c5; border-radius: 14px; padding: 14px 16px; }
+[data-testid="stVerticalBlockBorderWrapper"] { border-radius: 14px; }
+.stButton > button[kind="primary"], .stFormSubmitButton > button[kind="primary"] {
+  background: #e86f3d; border: none; color: #15313a; font-weight: 700; border-radius: 10px;
+}
+.brand-row { display: flex; align-items: center; gap: 12px; }
+.brand-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.7rem; line-height: 1; }
+.brand-tag { font-size: .78rem; opacity: .75; margin-top: 3px; }
+.brand-strip { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; color: #15313a; }
+.brand-strip .brand-name { font-size: 1.35rem; }
+.side-note { background: rgba(244,240,232,.08); border: 1px solid rgba(244,240,232,.18);
+  border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }
+</style>
+"""
+
+
+def apply_branding() -> None:
+    st.markdown(BRAND_CSS, unsafe_allow_html=True)
 
 
 BASE_REQUESTS = [
@@ -192,23 +232,33 @@ def init_state() -> None:
 
 def render_sidebar() -> str:
     with st.sidebar:
-        st.title("JanSetu AI")
-        st.caption("Public intelligence for infrastructure action")
+        st.markdown(
+            '<div class="brand-row">' + LOGO_SVG.format(size=46) +
+            '<div><div class="brand-name">JanSetu AI</div>'
+            '<div class="brand-tag">Public intelligence for infrastructure action</div></div></div>',
+            unsafe_allow_html=True,
+        )
         st.divider()
         page = st.radio(
             "Workspace",
             ["Control room", "Citizen intake", "Evidence library", "Recommendations"],
         )
         st.divider()
-        st.info(
-            "Demo data live\n\n"
-            "Signals shown here are a representative Rajasthan pilot dataset."
+        st.markdown(
+            '<div class="side-note"><b>Demo data live</b><br>'
+            'Signals shown here are a representative Rajasthan pilot dataset.</div>',
+            unsafe_allow_html=True,
         )
         st.caption("Prototype mode · Human review required")
     return page
 
 
 def render_header(page: str) -> None:
+    st.markdown(
+        '<div class="brand-strip">' + LOGO_SVG.format(size=30) +
+        '<span class="brand-name">JanSetu AI</span></div>',
+        unsafe_allow_html=True,
+    )
     st.caption(f"RAJASTHAN PILOT / {page.upper()}")
     st.title("From voice to public value.")
     st.write(
@@ -472,6 +522,7 @@ def render_recommendations() -> None:
                 st.metric("Indicative budget", item["budget"])
 
 
+apply_branding()
 init_state()
 page = render_sidebar()
 page_override = st.session_state.pop("page_override", None)
