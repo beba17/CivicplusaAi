@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 
 import pandas as pd
@@ -23,29 +24,56 @@ LOGO_SVG = """
 </svg>
 """
 
-BRAND_CSS = """
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
-html, body, .stApp, [data-testid="stAppViewContainer"] { font-family: 'DM Sans', sans-serif; }
-h1, h2, h3 { font-family: 'Instrument Serif', Georgia, serif !important; font-weight: 400 !important; letter-spacing: -0.01em; }
-h1 { font-size: 3.1rem !important; line-height: 1.05 !important; }
-[data-testid="stSidebar"] { background: #15313a; }
-[data-testid="stSidebar"] * { color: #f4f0e8; }
-[data-testid="stSidebar"] hr { border-color: rgba(244,240,232,.18); }
-[data-testid="stMetric"] { background: #fffaf0; border: 1px solid #d8d1c5; border-radius: 14px; padding: 14px 16px; }
-[data-testid="stVerticalBlockBorderWrapper"] { border-radius: 14px; }
-.stButton > button[kind="primary"], .stFormSubmitButton > button[kind="primary"] {
-  background: #e86f3d; border: none; color: #15313a; font-weight: 700; border-radius: 10px;
-}
-.brand-row { display: flex; align-items: center; gap: 12px; }
-.brand-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.7rem; line-height: 1; }
-.brand-tag { font-size: .78rem; opacity: .75; margin-top: 3px; }
-.brand-strip { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; color: #15313a; }
-.brand-strip .brand-name { font-size: 1.35rem; }
-.side-note { background: rgba(244,240,232,.08); border: 1px solid rgba(244,240,232,.18);
-  border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }
-</style>
-"""
+_MAIN = '[data-testid="stMain"], section.main'
+
+
+def _scoped(selectors: str, body: str) -> str:
+    """Prefix every selector with the main-area container so the dark sidebar is untouched."""
+    parts = []
+    for sel in selectors.split(","):
+        for root in ('[data-testid="stMain"]', 'section.main'):
+            parts.append(f"{root} {sel.strip()}")
+    return ",\n".join(parts) + " { " + body + " }\n"
+
+
+BRAND_CSS = (
+    "<style>\n"
+    "@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');\n"
+    "html, body, .stApp, [data-testid=\"stAppViewContainer\"] { font-family: 'DM Sans', sans-serif; }\n"
+    # Force the light brand look even when the visitor's system/browser is in dark mode
+    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #f4f0e8 !important; }\n"
+    + _scoped("h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], [data-testid=\"stCaptionContainer\"], [data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *", "color: #15313a;")
+    + _scoped("[data-testid=\"stMetricDelta\"] *", "color: #287d69;")
+    + _scoped("h1, h2, h3", "font-family: 'Instrument Serif', Georgia, serif !important; font-weight: 400 !important; letter-spacing: -0.01em;")
+    + _scoped("h1", "font-size: 3.1rem !important; line-height: 1.05 !important;")
+    + _scoped("[data-testid=\"stMetric\"]", "background: #fffaf0; border: 1px solid #d8d1c5; border-radius: 14px; padding: 14px 16px;")
+    + _scoped("[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details", "background: #fffaf0; border-color: #d8d1c5; border-radius: 14px;")
+    + _scoped("[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input", "background: #fffaf0 !important; color: #15313a !important;")
+    + "[data-testid=\"stSidebar\"] { background: #15313a; }\n"
+    "[data-testid=\"stSidebar\"] * { color: #f4f0e8; }\n"
+    "[data-testid=\"stSidebar\"] hr { border-color: rgba(244,240,232,.18); }\n"
+    "h1, h2, h3 { font-family: 'Instrument Serif', Georgia, serif !important; font-weight: 400 !important; }\n"
+    ".stButton > button[kind=\"primary\"], .stFormSubmitButton > button[kind=\"primary\"] { background: #e86f3d; border: none; color: #15313a !important; font-weight: 700; border-radius: 10px; }\n"
+    ".brand-row { display: flex; align-items: center; gap: 12px; }\n"
+    ".brand-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.7rem; line-height: 1; }\n"
+    ".brand-tag { font-size: .78rem; opacity: .75; margin-top: 3px; }\n"
+    ".brand-strip { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }\n"
+    ".brand-strip .brand-name { font-size: 1.35rem; }\n"
+    ".side-note { background: rgba(244,240,232,.08); border: 1px solid rgba(244,240,232,.18); border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }\n"
+    ".hero { background: linear-gradient(135deg, #15313a 0%, #1c5560 62%, #178f8b 100%); border-radius: 26px; padding: 44px 44px 36px; margin-bottom: 18px; box-shadow: 0 18px 40px rgba(21,49,58,.22); }\n"
+    ".hero, .hero * { color: #f4f0e8 !important; }\n"
+    ".hero h1 { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 3.6rem; line-height: 1.02; margin: 18px 0 12px; }\n"
+    ".hero h1 em { color: #f3a27f !important; font-style: italic; }\n"
+    ".hero p { font-size: 1.08rem; max-width: 640px; opacity: .88; margin: 0 0 20px; }\n"
+    ".pill { display: inline-block; padding: 6px 14px; margin: 0 8px 8px 0; border-radius: 999px; background: rgba(244,240,232,.14); border: 1px solid rgba(244,240,232,.22); font-size: .82rem; font-weight: 500; }\n"
+    ".hero .brand-row .brand-name { font-size: 1.5rem; }\n"
+    "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"] { box-shadow: 0 1px 2px rgba(21,49,58,.05), 0 8px 22px rgba(21,49,58,.06); transition: transform .18s ease, box-shadow .18s ease; }\n"
+    "[data-testid=\"stMetric\"]:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(21,49,58,.12); }\n"
+    "#MainMenu, footer { visibility: hidden; }\n"
+    ".block-container { padding-top: 2.2rem; max-width: 1180px; }\n"
+    "@media (max-width: 640px) { .hero { padding: 26px 22px; } .hero h1 { font-size: 2.5rem; } }\n"
+    "</style>\n"
+)
 
 
 def apply_branding() -> None:
@@ -97,15 +125,125 @@ BASE_REQUESTS = [
         "status": "Triaged",
         "theme": "Healthcare",
     },
+    {
+        "id": "SIG-2044",
+        "quote": "எங்கள் கிராமத்தில் குடிநீர் பற்றாக்குறை உள்ளது.",
+        "summary": "Drinking water shortage in a Tamil Nadu village",
+        "language": "Tamil",
+        "channel": "Voice note",
+        "place": "Madurai, Tamil Nadu",
+        "time": "2 hr ago",
+        "status": "Structured",
+        "theme": "Water access",
+    },
+    {
+        "id": "SIG-2043",
+        "quote": "The bridge to our school washes away every monsoon.",
+        "summary": "Flood-proof bridge needed for school access",
+        "language": "English",
+        "channel": "Messaging app",
+        "place": "Dibrugarh, Assam",
+        "time": "3 hr ago",
+        "status": "Under review",
+        "theme": "Roads",
+    },
+    {
+        "id": "SIG-2042",
+        "quote": "हमारे मोहल्ले में दिन में कई बार बिजली चली जाती है।",
+        "summary": "Frequent power cuts in a Bihar neighbourhood",
+        "language": "Hindi",
+        "channel": "Text",
+        "place": "Patna, Bihar",
+        "time": "5 hr ago",
+        "status": "Triaged",
+        "theme": "Electricity",
+    },
 ]
 
-HOTSPOTS = pd.DataFrame(
-    [
-        {"place": "Jaipur rural belt", "issue": "Water reliability", "signals": 1284, "change": "+18%", "lat": 26.9124, "lon": 75.7873},
-        {"place": "Bassi block", "issue": "Road connectivity", "signals": 842, "change": "+11%", "lat": 26.9647, "lon": 76.0488},
-        {"place": "Dausa district", "issue": "School access", "signals": 617, "change": "+8%", "lat": 26.8932, "lon": 76.3375},
-    ]
-)
+# All 36 States & UTs. Population = Census 2011 (approximate, official census figures).
+# Lat/lon = approximate state centre points for map display.
+_STATES = [
+    ("Uttar Pradesh", 26.85, 80.95, 199812341, "Central"),
+    ("Maharashtra", 19.75, 75.71, 112374333, "West"),
+    ("Bihar", 25.10, 85.31, 104099452, "East"),
+    ("West Bengal", 22.99, 87.85, 91276115, "East"),
+    ("Madhya Pradesh", 23.47, 77.95, 72626809, "Central"),
+    ("Tamil Nadu", 11.13, 78.66, 72147030, "South"),
+    ("Rajasthan", 26.58, 73.84, 68548437, "West"),
+    ("Karnataka", 15.32, 75.71, 61095297, "South"),
+    ("Gujarat", 22.26, 71.19, 60439692, "West"),
+    ("Andhra Pradesh", 15.91, 79.74, 49386799, "South"),
+    ("Odisha", 20.95, 85.10, 41974218, "East"),
+    ("Telangana", 18.11, 79.02, 35003674, "South"),
+    ("Kerala", 10.85, 76.27, 33406061, "South"),
+    ("Jharkhand", 23.61, 85.28, 32988134, "East"),
+    ("Assam", 26.20, 92.94, 31205576, "Northeast"),
+    ("Punjab", 31.15, 75.34, 27743338, "North"),
+    ("Chhattisgarh", 21.28, 81.87, 25545198, "Central"),
+    ("Haryana", 29.06, 76.09, 25351462, "North"),
+    ("Delhi", 28.61, 77.21, 16787941, "North"),
+    ("Jammu & Kashmir", 33.78, 75.00, 12267013, "North"),
+    ("Uttarakhand", 30.07, 79.02, 10086292, "North"),
+    ("Himachal Pradesh", 31.10, 77.17, 6864602, "North"),
+    ("Tripura", 23.94, 91.99, 3673917, "Northeast"),
+    ("Meghalaya", 25.47, 91.37, 2966889, "Northeast"),
+    ("Manipur", 24.66, 93.91, 2855794, "Northeast"),
+    ("Nagaland", 26.16, 94.56, 1978502, "Northeast"),
+    ("Goa", 15.30, 74.12, 1458545, "West"),
+    ("Arunachal Pradesh", 28.22, 94.73, 1383727, "Northeast"),
+    ("Puducherry", 11.94, 79.81, 1247953, "South"),
+    ("Mizoram", 23.16, 92.94, 1097206, "Northeast"),
+    ("Chandigarh", 30.73, 76.78, 1055450, "North"),
+    ("Sikkim", 27.53, 88.51, 610577, "Northeast"),
+    ("Andaman & Nicobar Islands", 11.74, 92.66, 380581, "Islands"),
+    ("Ladakh", 34.15, 77.58, 274289, "North"),
+    ("Dadra & Nagar Haveli and Daman & Diu", 20.40, 72.83, 586956, "West"),
+    ("Lakshadweep", 10.57, 72.64, 64473, "Islands"),
+]
+
+INDIA_STATES = pd.DataFrame(_STATES, columns=["state", "lat", "lon", "population", "region"])
+
+THEMES = ["Water access", "Roads", "Public safety", "Healthcare", "Electricity", "Education"]
+
+# Illustrative regional demand tendencies (NOT official statistics) used only to
+# shape the simulated signal mix so the map is not perfectly uniform.
+REGION_BIAS = {
+    "North":     [1.0, 1.0, 1.2, 1.0, 0.9, 1.0],
+    "West":      [1.4, 0.9, 1.0, 1.0, 0.9, 1.0],
+    "South":     [0.9, 0.9, 1.0, 0.8, 0.8, 0.9],
+    "East":      [1.1, 1.2, 1.0, 1.2, 1.3, 1.1],
+    "Central":   [1.3, 1.1, 1.0, 1.3, 1.1, 1.2],
+    "Northeast": [1.0, 1.7, 0.9, 1.3, 1.3, 1.1],
+    "Islands":   [1.3, 1.0, 0.8, 1.4, 1.1, 1.0],
+}
+
+
+def build_india_signals() -> pd.DataFrame:
+    """Simulated citizen-signal counts per State/UT x theme.
+    Population is real (Census 2011). Signal counts are SIMULATED: scaled by population
+    with a small deterministic variation, so results are stable between reruns."""
+    rows = []
+    for _, row in INDIA_STATES.iterrows():
+        rng = random.Random(row["state"])
+        for theme, bias in zip(THEMES, REGION_BIAS[row["region"]]):
+            signals = int(row["population"] / 1_000_000 * 12 * bias * rng.uniform(0.75, 1.25))
+            rows.append(
+                {
+                    "state": row["state"],
+                    "region": row["region"],
+                    "lat": row["lat"],
+                    "lon": row["lon"],
+                    "population": row["population"],
+                    "theme": theme,
+                    "signals": max(signals, 1),
+                }
+            )
+    df = pd.DataFrame(rows)
+    df["per_million"] = (df["signals"] / (df["population"] / 1_000_000)).round(1)
+    return df
+
+
+INDIA_SIGNALS = build_india_signals()
 
 RECOMMENDATIONS = [
     {
@@ -241,25 +379,45 @@ def render_sidebar() -> str:
         st.divider()
         page = st.radio(
             "Workspace",
-            ["Control room", "Citizen intake", "Evidence library", "Recommendations"],
+            ["Control room", "Citizen intake", "Evidence library", "Recommendations", "Governance & DPG"],
         )
         st.divider()
         st.markdown(
             '<div class="side-note"><b>Demo data live</b><br>'
-            'Signals shown here are a representative Rajasthan pilot dataset.</div>',
+            'All 36 States &amp; UTs. Population: Census 2011. Signal counts are simulated for this prototype.</div>',
             unsafe_allow_html=True,
         )
         st.caption("Prototype mode · Human review required")
     return page
 
 
+def render_hero() -> None:
+    st.markdown(
+        '<div class="hero">'
+        '<div class="brand-row">' + LOGO_SVG.format(size=40) +
+        '<span class="brand-name">JanSetu AI</span></div>'
+        '<h1>From voice to <em>public value.</em></h1>'
+        '<p>A clear line from what citizens say to what planners can act on, '
+        'grounded in local evidence.</p>'
+        '<span class="pill">Voice · Text · Messaging apps</span>'
+        '<span class="pill">Hindi · Bengali · Tamil · English</span>'
+        '<span class="pill">Explainable · Human-reviewed</span>'
+        '<span class="pill">Digital Public Good</span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+
 def render_header(page: str) -> None:
+    if page == "Control room":
+        render_hero()
+        return
     st.markdown(
         '<div class="brand-strip">' + LOGO_SVG.format(size=30) +
         '<span class="brand-name">JanSetu AI</span></div>',
         unsafe_allow_html=True,
     )
-    st.caption(f"RAJASTHAN PILOT / {page.upper()}")
+    st.caption(f"ALL INDIA · 36 STATES & UTs / {page.upper()}")
     st.title("From voice to public value.")
     st.write(
         "A clear line from what citizens say to what planners can act on — "
@@ -284,13 +442,15 @@ def render_loop() -> None:
 
 
 def render_metrics() -> None:
-    st.subheader("Live overview")
+    st.subheader("India overview")
+    total = int(INDIA_SIGNALS["signals"].sum()) + max(len(st.session_state.requests) - len(BASE_REQUESTS), 0)
+    top_state = INDIA_SIGNALS.groupby("state")["signals"].sum().idxmax()
     columns = st.columns(4)
     metrics = [
-        ("Signals received", "4,862", "+12.4% this month"),
-        ("Districts represented", "18", "+3 since last week"),
-        ("Needs structured", "91.6%", "+4.8% model confidence"),
-        ("Recommendations ready", "27", "8 new · awaiting review"),
+        ("Signals (illustrative)", f"{total:,}", "simulated · scaled by population"),
+        ("States & UTs covered", "36", "all of India"),
+        ("Population covered", f"{INDIA_STATES['population'].sum() / 1e7:.1f} crore", "Census 2011"),
+        ("Highest volume", top_state, "by total signals"),
     ]
     for column, (label, value, delta) in zip(columns, metrics):
         with column:
@@ -298,31 +458,79 @@ def render_metrics() -> None:
 
 
 def render_hotspots() -> None:
-    left, right = st.columns([1.15, 0.85])
+    st.subheader("Where India is asking")
+    st.caption(
+        "Population: Census 2011 (real). Signal counts: simulated for this prototype. "
+        "Bigger circle = more signals."
+    )
+    theme_choice = st.selectbox("Show theme", ["All themes"] + THEMES)
+    data = INDIA_SIGNALS if theme_choice == "All themes" else INDIA_SIGNALS[INDIA_SIGNALS["theme"] == theme_choice]
+    by_state = (
+        data.groupby(["state", "lat", "lon", "population"], as_index=False)["signals"].sum()
+    )
+    by_state["per_million"] = (by_state["signals"] / (by_state["population"] / 1_000_000)).round(1)
+    top = by_state["signals"].max()
+    by_state["size"] = 25000 + (by_state["signals"] / top) * 110000
+
+    left, right = st.columns([1.2, 0.8])
     with left:
-        st.subheader("Where people are asking")
-        st.caption("Demand geography · demo coordinates")
-        st.map(HOTSPOTS[["lat", "lon"]], zoom=7, use_container_width=True)
+        st.map(by_state, latitude="lat", longitude="lon", size="size", color="#e86f3d", use_container_width=True)
+    with right:
+        st.markdown("**Top 10 States / UTs**")
         st.dataframe(
-            HOTSPOTS[["place", "issue", "signals", "change"]],
+            by_state.sort_values("signals", ascending=False)
+            .head(10)[["state", "signals", "per_million"]],
             use_container_width=True,
             hide_index=True,
             column_config={
+                "state": "State / UT",
                 "signals": st.column_config.NumberColumn("Signals", format="%d"),
-                "change": st.column_config.TextColumn("Change"),
+                "per_million": st.column_config.NumberColumn("Per million people", format="%.1f"),
             },
         )
-    with right:
-        st.subheader("Latest citizen signals")
-        for item in st.session_state.requests[:4]:
+
+    st.markdown("**Highest need intensity (state × theme, signals per million people)**")
+    hotspot_table = (
+        INDIA_SIGNALS.sort_values("per_million", ascending=False)
+        .head(8)[["state", "theme", "signals", "per_million"]]
+    )
+    st.dataframe(
+        hotspot_table,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "state": "State / UT",
+            "theme": "Theme",
+            "signals": st.column_config.NumberColumn("Signals", format="%d"),
+            "per_million": st.column_config.NumberColumn("Per million people", format="%.1f"),
+        },
+    )
+
+    st.divider()
+    st.subheader("Drill down by State / UT")
+    state_choice = st.selectbox("Choose a State / UT", sorted(INDIA_STATES["state"]), index=sorted(INDIA_STATES["state"]).index("Rajasthan"))
+    one = INDIA_SIGNALS[INDIA_SIGNALS["state"] == state_choice].set_index("theme")
+    info = INDIA_STATES[INDIA_STATES["state"] == state_choice].iloc[0]
+    cols = st.columns(3)
+    cols[0].metric("Population (Census 2011)", f"{int(info['population']):,}")
+    cols[1].metric("Region", info["region"])
+    cols[2].metric("Top need", one["signals"].idxmax(), f"{int(one['signals'].max()):,} signals")
+    st.bar_chart(one["signals"])
+
+    st.divider()
+    st.subheader("Latest citizen signals")
+    recent = st.session_state.requests[:4]
+    columns = st.columns(2)
+    for index, item in enumerate(recent):
+        with columns[index % 2]:
             with st.container(border=True):
                 st.caption(f"{item['channel']} · {item['time']} · {item['status']}")
                 st.write(f"**{item['summary']}**")
                 st.write(f"> {item['quote']}")
                 st.caption(f"{item['place']} · {item['language']} · {item['theme']}")
-        if st.button("Capture another signal", type="primary", use_container_width=True):
-            st.session_state.page_override = "Citizen intake"
-            st.rerun()
+    if st.button("Capture another signal", type="primary"):
+        st.session_state.page_override = "Citizen intake"
+        st.rerun()
 
 
 def render_live_pulse() -> None:
@@ -387,6 +595,7 @@ def render_intake() -> None:
         place = st.text_input(
             "Place",
             value="Kalyanpur, Rajasthan",
+            # any village, block, district or state in India works
             help="A village, ward, block, or district is enough.",
         )
         consent = st.checkbox(
@@ -522,6 +731,108 @@ def render_recommendations() -> None:
                 st.metric("Indicative budget", item["budget"])
 
 
+DPG_CHECKLIST = pd.DataFrame(
+    [
+        ("Relevance to SDGs", "In prototype", "Targets SDG 6 (water), 9 (infrastructure), 11 (cities) and 16 (institutions)."),
+        ("Open licence", "Planned", "Add an open-source licence (e.g. Apache-2.0 / MIT) to the repository."),
+        ("Clear ownership", "Partly", "Project owner is named in the repository; formal governance to be defined."),
+        ("Platform independence", "In prototype", "Plain Python + Streamlit + pandas. No paid or proprietary services required."),
+        ("Documentation", "In prototype", "README, pitch deck and this page describe the system and its limits."),
+        ("Data extraction mechanism", "In prototype", "Signals can be downloaded as CSV from this page."),
+        ("Privacy and applicable laws", "Partly", "No personal details collected; consent step included. Formal DPDP Act 2023 review still needed."),
+        ("Standards and best practices", "Planned", "Adopt open data formats and admin-boundary codes (e.g. LGD) for government interoperability."),
+        ("Do no harm by design", "In prototype", "Human review before any action; rule-based, traceable classification; no automatic allocation."),
+    ],
+    columns=["DPG indicator", "Status", "How this prototype addresses it"],
+)
+
+
+def render_governance() -> None:
+    render_header("Governance & DPG")
+    st.subheader("Built to be a Digital Public Good.")
+    st.write(
+        "JanSetu AI is designed so that public teams can trust it, inspect it and reuse it. "
+        "This page states plainly what the prototype does today and what is still to be done."
+    )
+
+    columns = st.columns(4)
+    principles = [
+        ("Consent first", "Nothing is shared with planners unless the citizen agrees."),
+        ("Human in the loop", "AI suggests. People review. No automatic spending decisions."),
+        ("Explainable", "Every label traces back to the citizen's own words and visible rules."),
+        ("Open and portable", "Standard formats and CSV export, no vendor lock-in."),
+    ]
+    for column, (title, text) in zip(columns, principles):
+        with column:
+            with st.container(border=True):
+                st.markdown(f"**{title}**")
+                st.caption(text)
+
+    st.divider()
+    st.subheader("Privacy by design")
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**What the prototype collects**")
+        st.markdown(
+            "- The citizen's own words (text or voice note)\n"
+            "- A place (village, ward, block or district)\n"
+            "- Language and channel used\n"
+            "- A consent flag"
+        )
+    with right:
+        st.markdown("**What it does not ask for**")
+        st.markdown(
+            "- Name, phone number or address\n"
+            "- Aadhaar or any government ID\n"
+            "- Precise GPS location\n"
+            "- Contacts or device data"
+        )
+
+    st.divider()
+    st.subheader("How a signal travels")
+    flow = st.columns(5)
+    steps = [
+        ("1 · Citizen", "Speaks or types a need, and gives consent."),
+        ("2 · Structuring", "Theme, language and urgency detected by visible rules."),
+        ("3 · Hotspots", "Signals grouped by place and normalised by population."),
+        ("4 · Human review", "Planners check evidence and field reality."),
+        ("5 · Decision", "Only people decide what gets funded."),
+    ]
+    for column, (title, text) in zip(flow, steps):
+        with column:
+            with st.container(border=True):
+                st.markdown(f"**{title}**")
+                st.caption(text)
+
+    st.divider()
+    st.subheader("Digital Public Good readiness")
+    st.caption(
+        "Self-assessment against the nine indicators of the DPG Standard. "
+        "This prototype is not certified by the DPG Alliance."
+    )
+    st.dataframe(DPG_CHECKLIST, use_container_width=True, hide_index=True)
+
+    st.divider()
+    st.subheader("Take your data with you")
+    st.caption("Open, portable data is part of being a public good.")
+    export = pd.DataFrame(st.session_state.requests)
+    st.download_button(
+        "Download all signals (CSV)",
+        data=export.to_csv(index=False).encode("utf-8"),
+        file_name="jansetu_signals.csv",
+        mime="text/csv",
+        type="primary",
+    )
+
+    st.divider()
+    st.subheader("What is simulated in this prototype")
+    st.warning(
+        "State-wise signal counts on the Control room are simulated and scaled by real Census 2011 "
+        "population. Recommendation scores and budgets are indicative rule-based estimates. "
+        "None of this is an official statistic or an allocation decision."
+    )
+
+
 apply_branding()
 init_state()
 page = render_sidebar()
@@ -535,11 +846,13 @@ elif page == "Citizen intake":
     render_intake()
 elif page == "Evidence library":
     render_evidence()
+elif page == "Governance & DPG":
+    render_governance()
 else:
     render_recommendations()
 
 st.divider()
 st.caption(
-    f"JanSetu AI · representative demo data · Last session update: "
+    f"JanSetu AI · Census 2011 population + simulated signals · Last session update: "
     f"{datetime.now().strftime('%d %b %Y, %H:%M')}"
 )
