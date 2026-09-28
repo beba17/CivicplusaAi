@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="JanSetu AI — Public Intelligence",
     page_icon="🌉",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 
@@ -55,7 +55,10 @@ BRAND_CSS = (
     ".stApp button[kind=\"primary\"] *, .stApp [data-testid=\"stBaseButton-primary\"] *, .stApp [data-testid=\"stBaseButton-primaryFormSubmit\"] * { color: #0b1b3f !important; font-weight: 700; }\n"
     "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"] { box-shadow: 0 1px 2px rgba(11,27,63,.05), 0 8px 22px rgba(11,27,63,.06); }\n"
     "#MainMenu, footer { visibility: hidden; }\n"
-    ".block-container { padding-top: 2rem; max-width: 1180px; }\n"
+    ".block-container, [data-testid=\"stMainBlockContainer\"] { padding: 0 !important; max-width: 100% !important; }\n"
+    "[data-testid=\"stMainBlockContainer\"] > [data-testid=\"stVerticalBlock\"], .block-container > [data-testid=\"stVerticalBlock\"] { gap: 0 !important; }\n"
+    "[data-testid=\"stHeader\"], [data-testid=\"stDecoration\"], [data-testid=\"stToolbar\"], [data-testid=\"stSidebar\"], [data-testid=\"stSidebarCollapsedControl\"], [data-testid=\"stExpandSidebarButton\"] { display: none !important; }\n"
+    ".st-key-body { padding: 44px 6vw 64px; }\n"
     # wordmark
     ".wm { display: flex; align-items: baseline; gap: 10px; }\n"
     ".wm-dev { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; font-size: 2.1rem; line-height: 1; }\n"
@@ -64,13 +67,13 @@ BRAND_CSS = (
     ".side-note { background: rgba(232,236,246,.07); border: 1px solid rgba(232,236,246,.16); border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }\n"
     ".brand-strip { margin-bottom: 10px; }\n"
     # hero (built with st.container(key="hero"))
-    ".st-key-hero { position: relative; overflow: hidden; background: #0b1b3f; border-radius: 22px; padding: 38px 52px 46px; margin-bottom: 26px; }\n"
+    ".st-key-hero { position: relative; overflow: hidden; background: #0b1b3f; border-radius: 0; padding: 56px 6vw 84px; margin: 0; }\n"
     ".st-key-hero::before { content: ''; position: absolute; right: -150px; top: -130px; width: 540px; height: 540px; border-radius: 50%; background: #12275a; }\n"
     ".st-key-hero::after { content: ''; position: absolute; right: -70px; bottom: -280px; width: 430px; height: 430px; border-radius: 50%; background: #141f47; }\n"
     ".st-key-hero > * { position: relative; z-index: 1; }\n"
     ".st-key-hero, .st-key-hero * { color: #ffffff !important; }\n"
-    ".st-key-hero .eyebrow { color: #f28c1c !important; font-weight: 700; letter-spacing: .17em; font-size: .8rem; margin-top: 64px; }\n"
-    ".st-key-hero .hero-title { font-family: 'Bitter', Georgia, serif; font-weight: 800; font-size: 3.6rem; line-height: 1.08; letter-spacing: -0.02em; margin: 16px 0 20px; max-width: 860px; }\n"
+    ".st-key-hero .eyebrow { color: #f28c1c !important; font-weight: 700; letter-spacing: .17em; font-size: .8rem; margin-top: 24px; }\n"
+    ".st-key-hero .hero-title { font-family: 'Bitter', Georgia, serif; font-weight: 800; font-size: 3.3rem; line-height: 1.14; letter-spacing: 0; margin: 16px 0 20px; max-width: 860px; }\n"
     ".st-key-hero .hero-rule { width: 84px; height: 3px; background: #f28c1c; margin: 0 0 24px; }\n"
     ".st-key-hero .hero-sub { color: #a9b4cf !important; font-size: 1.1rem; line-height: 1.7; max-width: 700px; margin-bottom: 26px; }\n"
     ".st-key-hero .wm-en { color: #f28c1c !important; }\n"
@@ -78,6 +81,13 @@ BRAND_CSS = (
     ".st-key-hero button[kind=\"primary\"] *, .st-key-hero [data-testid=\"stBaseButton-primary\"] * { color: #0b1b3f !important; }\n"
     ".st-key-hero button[kind=\"secondary\"], .st-key-hero [data-testid=\"stBaseButton-secondary\"] { background: transparent; border: 1px solid rgba(255,255,255,.55); border-radius: 8px; padding: .7rem 1rem; }\n"
     ".wm-en { color: #f28c1c !important; }\n"
+    ".st-key-topnav { background: #0b1b3f; padding: 14px 6vw; border-bottom: 1px solid rgba(255,255,255,.12); }\n"
+    ".st-key-topnav, .st-key-topnav * { color: #ffffff !important; }\n"
+    ".st-key-topnav [data-testid=\"stHorizontalBlock\"] { align-items: center; gap: .25rem; }\n"
+    ".st-key-topnav button { background: transparent !important; border: none !important; box-shadow: none !important; white-space: nowrap; font-weight: 500; }\n"
+    ".st-key-topnav button[kind=\"primary\"], .st-key-topnav [data-testid=\"stBaseButton-primary\"] { border-bottom: 2px solid #f28c1c !important; border-radius: 0 !important; }\n"
+    ".st-key-topnav button[kind=\"primary\"] *, .st-key-topnav [data-testid=\"stBaseButton-primary\"] * { color: #f28c1c !important; font-weight: 700 !important; }\n"
+    "@media (max-width: 900px) { .st-key-topnav [data-testid=\"stHorizontalBlock\"] { flex-wrap: nowrap !important; overflow-x: auto; } .st-key-topnav [data-testid=\"stColumn\"] { min-width: max-content !important; flex: 0 0 auto !important; } }\n"
     "@media (max-width: 700px) { .st-key-hero { padding: 24px 22px 30px; } .st-key-hero .hero-title { font-size: 2.2rem; } .st-key-hero .eyebrow { margin-top: 36px; } }\n"
     "</style>\n"
 )
@@ -396,29 +406,36 @@ def go(page: str) -> None:
     st.session_state.nav = page
 
 
-def render_sidebar() -> str:
-    with st.sidebar:
-        st.markdown(
-            wordmark() + '<div class="brand-tag">Public intelligence for infrastructure action</div>',
-            unsafe_allow_html=True,
-        )
-        st.divider()
-        page = st.radio("Workspace", PAGES, key="nav")
-        st.divider()
-        st.markdown(
-            '<div class="side-note"><b>Demo data live</b><br>'
-            'All 36 States &amp; UTs. Population: Census 2011. Signal counts are simulated for this prototype.</div>',
-            unsafe_allow_html=True,
-        )
-        st.caption("Prototype mode · Human review required")
-    return page
+NAV_LABELS = {
+    "Control room": "Control room",
+    "Citizen intake": "Report an issue",
+    "Evidence library": "Evidence",
+    "Recommendations": "Recommendations",
+    "Governance & DPG": "Governance",
+}
+
+
+def render_topnav() -> str:
+    current = st.session_state.nav
+    with st.container(key="topnav"):
+        columns = st.columns([2.6, 1.1, 1.3, 1, 1.5, 1.2])
+        columns[0].markdown(wordmark(), unsafe_allow_html=True)
+        for column, (page, label) in zip(columns[1:], NAV_LABELS.items()):
+            column.button(
+                label,
+                key=f"nav_{page}",
+                type="primary" if page == current else "secondary",
+                on_click=go,
+                args=(page,),
+                use_container_width=True,
+            )
+    return current
 
 
 def render_hero() -> None:
     with st.container(key="hero"):
         st.markdown(
-            wordmark()
-            + '<div class="eyebrow">A DIGITAL PUBLIC GOOD · MULTILINGUAL</div>'
+            '<div class="eyebrow">A DIGITAL PUBLIC GOOD · MULTILINGUAL</div>'
             + '<div class="hero-title">A national bridge between citizen voice and public infrastructure policy</div>'
             + '<div class="hero-rule"></div>'
             + '<div class="hero-sub">Citizens speak in their own language over voice, SMS or WhatsApp. '
@@ -433,9 +450,7 @@ def render_hero() -> None:
 
 def render_header(page: str) -> None:
     if page == "Control room":
-        render_hero()
-        return
-    st.markdown('<div class="brand-strip">' + wordmark() + '</div>', unsafe_allow_html=True)
+        return  # the full-width hero is drawn above the page body
     st.caption(f"ALL INDIA · 36 STATES & UTs / {page.upper()}")
     st.title("From voice to public value.")
     st.write(
@@ -851,21 +866,26 @@ def render_governance() -> None:
 
 apply_branding()
 init_state()
-page = render_sidebar()
+page = render_topnav()
 
 if page == "Control room":
-    render_control_room()
-elif page == "Citizen intake":
-    render_intake()
-elif page == "Evidence library":
-    render_evidence()
-elif page == "Governance & DPG":
-    render_governance()
-else:
-    render_recommendations()
+    render_hero()
 
-st.divider()
-st.caption(
-    f"JanSetu AI · Census 2011 population + simulated signals · Last session update: "
-    f"{datetime.now().strftime('%d %b %Y, %H:%M')}"
-)
+with st.container(key="body"):
+    if page == "Control room":
+        render_control_room()
+    elif page == "Citizen intake":
+        render_intake()
+    elif page == "Evidence library":
+        render_evidence()
+    elif page == "Governance & DPG":
+        render_governance()
+    else:
+        render_recommendations()
+
+    st.divider()
+    st.caption(
+        "Demo data: all 36 States & UTs · Census 2011 population + simulated signals · "
+        "Prototype mode, human review required · "
+        f"Last session update: {datetime.now().strftime('%d %b %Y, %H:%M')}"
+    )
