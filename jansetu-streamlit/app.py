@@ -24,11 +24,8 @@ LOGO_SVG = """
 </svg>
 """
 
-_MAIN = '[data-testid="stMain"], section.main'
-
-
 def _scoped(selectors: str, body: str) -> str:
-    """Prefix every selector with the main-area container so the dark sidebar is untouched."""
+    """Prefix every selector with the main-area container so the navy sidebar is untouched."""
     parts = []
     for sel in selectors.split(","):
         for root in ('[data-testid="stMain"]', 'section.main'):
@@ -36,42 +33,52 @@ def _scoped(selectors: str, body: str) -> str:
     return ",\n".join(parts) + " { " + body + " }\n"
 
 
+BTN_PRIMARY = 'button[kind="primary"], [data-testid="stBaseButton-primary"], [data-testid="stBaseButton-primaryFormSubmit"]'
+BTN_SECONDARY = 'button[kind="secondary"], [data-testid="stBaseButton-secondary"]'
+
 BRAND_CSS = (
     "<style>\n"
-    "@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');\n"
-    "html, body, .stApp, [data-testid=\"stAppViewContainer\"] { font-family: 'DM Sans', sans-serif; }\n"
-    # Force the light brand look even when the visitor's system/browser is in dark mode
-    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #f4f0e8 !important; }\n"
-    + _scoped("h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], [data-testid=\"stCaptionContainer\"], [data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *", "color: #15313a;")
+    "@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@700&display=swap');\n"
+    "html, body, .stApp, [data-testid=\"stAppViewContainer\"] { font-family: 'Inter', sans-serif; }\n"
+    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #f6f7fb !important; }\n"
+    + _scoped("h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], [data-testid=\"stCaptionContainer\"], [data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *", "color: #0b1b3f;")
     + _scoped("[data-testid=\"stMetricDelta\"] *", "color: #287d69;")
-    + _scoped("h1, h2, h3", "font-family: 'Instrument Serif', Georgia, serif !important; font-weight: 400 !important; letter-spacing: -0.01em;")
-    + _scoped("h1", "font-size: 3.1rem !important; line-height: 1.05 !important;")
-    + _scoped("[data-testid=\"stMetric\"]", "background: #fffaf0; border: 1px solid #d8d1c5; border-radius: 14px; padding: 14px 16px;")
-    + _scoped("[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details", "background: #fffaf0; border-color: #d8d1c5; border-radius: 14px;")
-    + _scoped("[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input", "background: #fffaf0 !important; color: #15313a !important;")
-    + "[data-testid=\"stSidebar\"] { background: #15313a; }\n"
-    "[data-testid=\"stSidebar\"] * { color: #f4f0e8; }\n"
-    "[data-testid=\"stSidebar\"] hr { border-color: rgba(244,240,232,.18); }\n"
-    "h1, h2, h3 { font-family: 'Instrument Serif', Georgia, serif !important; font-weight: 400 !important; }\n"
-    ".stButton > button[kind=\"primary\"], .stFormSubmitButton > button[kind=\"primary\"] { background: #e86f3d; border: none; color: #15313a !important; font-weight: 700; border-radius: 10px; }\n"
-    ".brand-row { display: flex; align-items: center; gap: 12px; }\n"
-    ".brand-name { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.7rem; line-height: 1; }\n"
-    ".brand-tag { font-size: .78rem; opacity: .75; margin-top: 3px; }\n"
-    ".brand-strip { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }\n"
-    ".brand-strip .brand-name { font-size: 1.35rem; }\n"
-    ".side-note { background: rgba(244,240,232,.08); border: 1px solid rgba(244,240,232,.18); border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }\n"
-    ".hero { background: linear-gradient(135deg, #15313a 0%, #1c5560 62%, #178f8b 100%); border-radius: 26px; padding: 44px 44px 36px; margin-bottom: 18px; box-shadow: 0 18px 40px rgba(21,49,58,.22); }\n"
-    ".hero, .hero * { color: #f4f0e8 !important; }\n"
-    ".hero h1 { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 3.6rem; line-height: 1.02; margin: 18px 0 12px; }\n"
-    ".hero h1 em { color: #f3a27f !important; font-style: italic; }\n"
-    ".hero p { font-size: 1.08rem; max-width: 640px; opacity: .88; margin: 0 0 20px; }\n"
-    ".pill { display: inline-block; padding: 6px 14px; margin: 0 8px 8px 0; border-radius: 999px; background: rgba(244,240,232,.14); border: 1px solid rgba(244,240,232,.22); font-size: .82rem; font-weight: 500; }\n"
-    ".hero .brand-row .brand-name { font-size: 1.5rem; }\n"
-    "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"] { box-shadow: 0 1px 2px rgba(21,49,58,.05), 0 8px 22px rgba(21,49,58,.06); transition: transform .18s ease, box-shadow .18s ease; }\n"
-    "[data-testid=\"stMetric\"]:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(21,49,58,.12); }\n"
+    + _scoped("h1, h2, h3", "font-family: 'Bitter', Georgia, serif !important; font-weight: 700 !important; letter-spacing: -0.01em;")
+    + _scoped("h1", "font-size: 2.6rem !important; line-height: 1.1 !important;")
+    + _scoped("[data-testid=\"stMetric\"]", "background: #ffffff; border: 1px solid #e1e6f0; border-radius: 14px; padding: 14px 16px;")
+    + _scoped("[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details", "background: #ffffff; border-color: #e1e6f0; border-radius: 14px;")
+    + _scoped("[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input", "background: #ffffff !important; color: #0b1b3f !important;")
+    + "[data-testid=\"stSidebar\"] { background: #0b1b3f; }\n"
+    "[data-testid=\"stSidebar\"] * { color: #e8ecf6; }\n"
+    "[data-testid=\"stSidebar\"] hr { border-color: rgba(232,236,246,.16); }\n"
+    + BTN_PRIMARY.replace(", ", " {background: #f28c1c; border: none; border-radius: 8px;} ") + " {background: #f28c1c; border: none; border-radius: 8px;}\n"
+    ".stApp button[kind=\"primary\"] *, .stApp [data-testid=\"stBaseButton-primary\"] *, .stApp [data-testid=\"stBaseButton-primaryFormSubmit\"] * { color: #0b1b3f !important; font-weight: 700; }\n"
+    "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"] { box-shadow: 0 1px 2px rgba(11,27,63,.05), 0 8px 22px rgba(11,27,63,.06); }\n"
     "#MainMenu, footer { visibility: hidden; }\n"
-    ".block-container { padding-top: 2.2rem; max-width: 1180px; }\n"
-    "@media (max-width: 640px) { .hero { padding: 26px 22px; } .hero h1 { font-size: 2.5rem; } }\n"
+    ".block-container { padding-top: 2rem; max-width: 1180px; }\n"
+    # wordmark
+    ".wm { display: flex; align-items: baseline; gap: 10px; }\n"
+    ".wm-dev { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; font-size: 2.1rem; line-height: 1; }\n"
+    ".wm-en { font-size: .78rem; font-weight: 700; letter-spacing: .24em; }\n"
+    ".brand-tag { font-size: .78rem; opacity: .7; margin-top: 6px; }\n"
+    ".side-note { background: rgba(232,236,246,.07); border: 1px solid rgba(232,236,246,.16); border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }\n"
+    ".brand-strip { margin-bottom: 10px; }\n"
+    # hero (built with st.container(key="hero"))
+    ".st-key-hero { position: relative; overflow: hidden; background: #0b1b3f; border-radius: 22px; padding: 38px 52px 46px; margin-bottom: 26px; }\n"
+    ".st-key-hero::before { content: ''; position: absolute; right: -150px; top: -130px; width: 540px; height: 540px; border-radius: 50%; background: #12275a; }\n"
+    ".st-key-hero::after { content: ''; position: absolute; right: -70px; bottom: -280px; width: 430px; height: 430px; border-radius: 50%; background: #141f47; }\n"
+    ".st-key-hero > * { position: relative; z-index: 1; }\n"
+    ".st-key-hero, .st-key-hero * { color: #ffffff !important; }\n"
+    ".st-key-hero .eyebrow { color: #f28c1c !important; font-weight: 700; letter-spacing: .17em; font-size: .8rem; margin-top: 64px; }\n"
+    ".st-key-hero .hero-title { font-family: 'Bitter', Georgia, serif; font-weight: 800; font-size: 3.6rem; line-height: 1.08; letter-spacing: -0.02em; margin: 16px 0 20px; max-width: 860px; }\n"
+    ".st-key-hero .hero-rule { width: 84px; height: 3px; background: #f28c1c; margin: 0 0 24px; }\n"
+    ".st-key-hero .hero-sub { color: #a9b4cf !important; font-size: 1.1rem; line-height: 1.7; max-width: 700px; margin-bottom: 26px; }\n"
+    ".st-key-hero .wm-en { color: #f28c1c !important; }\n"
+    ".st-key-hero button[kind=\"primary\"], .st-key-hero [data-testid=\"stBaseButton-primary\"] { background: #f28c1c; padding: .7rem 1rem; }\n"
+    ".st-key-hero button[kind=\"primary\"] *, .st-key-hero [data-testid=\"stBaseButton-primary\"] * { color: #0b1b3f !important; }\n"
+    ".st-key-hero button[kind=\"secondary\"], .st-key-hero [data-testid=\"stBaseButton-secondary\"] { background: transparent; border: 1px solid rgba(255,255,255,.55); border-radius: 8px; padding: .7rem 1rem; }\n"
+    ".wm-en { color: #f28c1c !important; }\n"
+    "@media (max-width: 700px) { .st-key-hero { padding: 24px 22px 30px; } .st-key-hero .hero-title { font-size: 2.2rem; } .st-key-hero .eyebrow { margin-top: 36px; } }\n"
     "</style>\n"
 )
 
@@ -281,7 +288,7 @@ RECOMMENDATIONS = [
 
 THEME_KEYWORDS = {
     "Water access": ["water", "paani", "पानी", "tanker", "drinking", "jal", "well", "handpump"],
-    "Roads": ["road", "sadak", "सड़क", "street", "highway", "pothole", "bridge", "connectivity"],
+    "Roads": ["road", "sadak", "सड़क", "highway", "pothole", "bridge", "connectivity"],
     "Public safety": ["safety", "unsafe", "danger", "light", "streetlight", "crime", "women", "night", "andhera"],
     "Healthcare": ["health", "hospital", "clinic", "doctor", "medicine", "swasthya", "स्वास्थ्य", "স্বাস্থ্যকেন্দ্র", "healthcare"],
     "Electricity": ["electricity", "power cut", "bijli", "बिजली", "outage", "transformer", "voltage"],
@@ -299,12 +306,15 @@ THEME_ACTION_TEMPLATES = {
 
 
 def classify_theme(text: str) -> str:
-    """Transparent keyword-rule classifier. Not ML — every match is traceable."""
+    """Transparent keyword-rule classifier. Not ML — every match is traceable.
+    The theme with the most keyword matches wins; no matches means it needs human triage."""
     lowered = text.lower()
-    for theme, keywords in THEME_KEYWORDS.items():
-        if any(keyword.lower() in lowered for keyword in keywords):
-            return theme
-    return "Needs triage"
+    scores = {
+        theme: sum(keyword.lower() in lowered for keyword in keywords)
+        for theme, keywords in THEME_KEYWORDS.items()
+    }
+    best = max(scores, key=scores.get)
+    return best if scores[best] > 0 else "Needs triage"
 
 
 def detect_language(text: str):
@@ -319,6 +329,10 @@ def detect_language(text: str):
             return "Tamil"
         if 0x0600 <= code <= 0x06FF:
             return "Urdu"
+    words = set(text.lower().replace(",", " ").replace(".", " ").split())
+    english_markers = {"the", "is", "are", "in", "our", "we", "to", "of", "and", "no", "every", "not", "at", "has", "have"}
+    if len(words & english_markers) >= 2:
+        return "English"
     return None
 
 
@@ -364,23 +378,32 @@ def generate_live_recommendations() -> list:
 
 
 def init_state() -> None:
+    if "nav" not in st.session_state:
+        st.session_state.nav = "Control room"
     if "requests" not in st.session_state:
         st.session_state.requests = list(BASE_REQUESTS)
+
+
+PAGES = ["Control room", "Citizen intake", "Evidence library", "Recommendations", "Governance & DPG"]
+
+
+def wordmark() -> str:
+    return '<div class="wm"><span class="wm-dev">सेतु</span><span class="wm-en">JANSETU AI</span></div>'
+
+
+def go(page: str) -> None:
+    """Button callback: switch the sidebar navigation to another page."""
+    st.session_state.nav = page
 
 
 def render_sidebar() -> str:
     with st.sidebar:
         st.markdown(
-            '<div class="brand-row">' + LOGO_SVG.format(size=46) +
-            '<div><div class="brand-name">JanSetu AI</div>'
-            '<div class="brand-tag">Public intelligence for infrastructure action</div></div></div>',
+            wordmark() + '<div class="brand-tag">Public intelligence for infrastructure action</div>',
             unsafe_allow_html=True,
         )
         st.divider()
-        page = st.radio(
-            "Workspace",
-            ["Control room", "Citizen intake", "Evidence library", "Recommendations", "Governance & DPG"],
-        )
+        page = st.radio("Workspace", PAGES, key="nav")
         st.divider()
         st.markdown(
             '<div class="side-note"><b>Demo data live</b><br>'
@@ -392,31 +415,27 @@ def render_sidebar() -> str:
 
 
 def render_hero() -> None:
-    st.markdown(
-        '<div class="hero">'
-        '<div class="brand-row">' + LOGO_SVG.format(size=40) +
-        '<span class="brand-name">JanSetu AI</span></div>'
-        '<h1>From voice to <em>public value.</em></h1>'
-        '<p>A clear line from what citizens say to what planners can act on, '
-        'grounded in local evidence.</p>'
-        '<span class="pill">Voice · Text · Messaging apps</span>'
-        '<span class="pill">Hindi · Bengali · Tamil · English</span>'
-        '<span class="pill">Explainable · Human-reviewed</span>'
-        '<span class="pill">Digital Public Good</span>'
-        '</div>',
-        unsafe_allow_html=True,
-    )
+    with st.container(key="hero"):
+        st.markdown(
+            wordmark()
+            + '<div class="eyebrow">A DIGITAL PUBLIC GOOD · MULTILINGUAL</div>'
+            + '<div class="hero-title">A national bridge between citizen voice and public infrastructure policy</div>'
+            + '<div class="hero-rule"></div>'
+            + '<div class="hero-sub">Citizens speak in their own language over voice, SMS or WhatsApp. '
+            'JanSetu translates, classifies and joins every report with census, infrastructure and '
+            'investment data — then hands policymakers a ranked, traceable list.</div>',
+            unsafe_allow_html=True,
+        )
+        first, second, _ = st.columns([1, 1.25, 2.4])
+        first.button("Report an issue", type="primary", use_container_width=True, on_click=go, args=("Citizen intake",), key="hero_report")
+        second.button("Open policy dashboard", use_container_width=True, on_click=go, args=("Recommendations",), key="hero_policy")
 
 
 def render_header(page: str) -> None:
     if page == "Control room":
         render_hero()
         return
-    st.markdown(
-        '<div class="brand-strip">' + LOGO_SVG.format(size=30) +
-        '<span class="brand-name">JanSetu AI</span></div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="brand-strip">' + wordmark() + '</div>', unsafe_allow_html=True)
     st.caption(f"ALL INDIA · 36 STATES & UTs / {page.upper()}")
     st.title("From voice to public value.")
     st.write(
@@ -528,9 +547,7 @@ def render_hotspots() -> None:
                 st.write(f"**{item['summary']}**")
                 st.write(f"> {item['quote']}")
                 st.caption(f"{item['place']} · {item['language']} · {item['theme']}")
-    if st.button("Capture another signal", type="primary"):
-        st.session_state.page_override = "Citizen intake"
-        st.rerun()
+    st.button("Capture another signal", type="primary", on_click=go, args=("Citizen intake",))
 
 
 def render_live_pulse() -> None:
@@ -640,7 +657,6 @@ def render_intake() -> None:
                 "every classification traces back to the words used. Check Recommendations "
                 "to see this signal already counted."
             )
-            st.session_state.page_override = "Evidence library"
 
     st.info(
         "Privacy by default: this demo does not require a name, phone number, "
@@ -836,9 +852,6 @@ def render_governance() -> None:
 apply_branding()
 init_state()
 page = render_sidebar()
-page_override = st.session_state.pop("page_override", None)
-if page_override:
-    page = page_override
 
 if page == "Control room":
     render_control_room()
