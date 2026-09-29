@@ -1,8 +1,8 @@
-# JanSetu AI
+# Civic Pluse AI
 
 ## From citizen voice to national infrastructure action
 
-JanSetu AI is a multilingual Digital Public Good prototype for turning citizen development requests into explainable infrastructure priorities for public planners across India.
+Civic Pluse AI is a multilingual Digital Public Good prototype for turning citizen development requests into explainable infrastructure priorities for public planners across India.
 
 Citizens can share needs through voice, text, or messaging channels. The system preserves the original language, structures the request, clusters demand hotspots, and presents recommendations with an evidence trail and a human-review checkpoint.
 
