@@ -1,4 +1,6 @@
+import html
 import random
+import time
 from datetime import datetime
 
 import pandas as pd
@@ -38,22 +40,22 @@ BTN_SECONDARY = 'button[kind="secondary"], [data-testid="stBaseButton-secondary"
 
 BRAND_CSS = (
     "<style>\n"
-    "@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@700&display=swap');\n"
+    "@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@700&display=swap');\n"
     "html, body, .stApp, [data-testid=\"stAppViewContainer\"] { font-family: 'Inter', sans-serif; }\n"
-    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #f6f7fb !important; }\n"
-    + _scoped("h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], [data-testid=\"stCaptionContainer\"], [data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *", "color: #0b1b3f;")
+    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #faf8ff !important; }\n"
+    + _scoped("h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], [data-testid=\"stCaptionContainer\"], [data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *", "color: #131b2e;")
     + _scoped("[data-testid=\"stMetricDelta\"] *", "color: #287d69;")
-    + _scoped("h1, h2, h3", "font-family: 'Bitter', Georgia, serif !important; font-weight: 700 !important; letter-spacing: -0.01em;")
+    + _scoped("h1, h2, h3", "font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 700 !important; letter-spacing: -0.01em;")
     + _scoped("h1", "font-size: 2.6rem !important; line-height: 1.1 !important;")
-    + _scoped("[data-testid=\"stMetric\"]", "background: #ffffff; border: 1px solid #e1e6f0; border-radius: 14px; padding: 14px 16px;")
-    + _scoped("[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details", "background: #ffffff; border-color: #e1e6f0; border-radius: 14px;")
-    + _scoped("[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input", "background: #ffffff !important; color: #0b1b3f !important;")
-    + "[data-testid=\"stSidebar\"] { background: #0b1b3f; }\n"
+    + _scoped("[data-testid=\"stMetric\"]", "background: #ffffff; border: 1px solid #dae2fd; border-radius: 16px; padding: 14px 16px;")
+    + _scoped("[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details", "background: #ffffff; border-color: #dae2fd; border-radius: 16px;")
+    + _scoped("[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input", "background: #ffffff !important; color: #131b2e !important; border-color: #c4c6cf !important;")
+    + "[data-testid=\"stSidebar\"] { background: #001026; }\n"
     "[data-testid=\"stSidebar\"] * { color: #e8ecf6; }\n"
-    "[data-testid=\"stSidebar\"] hr { border-color: rgba(232,236,246,.16); }\n"
-    + BTN_PRIMARY.replace(", ", " {background: #f28c1c; border: none; border-radius: 8px;} ") + " {background: #f28c1c; border: none; border-radius: 8px;}\n"
-    ".stApp button[kind=\"primary\"] *, .stApp [data-testid=\"stBaseButton-primary\"] *, .stApp [data-testid=\"stBaseButton-primaryFormSubmit\"] * { color: #0b1b3f !important; font-weight: 700; }\n"
-    "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"] { box-shadow: 0 1px 2px rgba(11,27,63,.05), 0 8px 22px rgba(11,27,63,.06); }\n"
+    "[data-testid=\"stSidebar\"] hr { border-color: rgba(255,255,255,.14); }\n"
+    + BTN_PRIMARY.replace(", ", " {background: #fe932c; border: none; border-radius: 10px;} ") + " {background: #fe932c; border: none; border-radius: 10px;}\n"
+    ".stApp button[kind=\"primary\"] *, .stApp [data-testid=\"stBaseButton-primary\"] *, .stApp [data-testid=\"stBaseButton-primaryFormSubmit\"] * { color: #663500 !important; font-weight: 700; }\n"
+    "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"] { box-shadow: 0 1px 2px rgba(19,27,46,.04), 0 8px 22px rgba(19,27,46,.06); }\n"
     "#MainMenu, footer { visibility: hidden; }\n"
     ".block-container, [data-testid=\"stMainBlockContainer\"] { padding: 0 !important; max-width: 100% !important; }\n"
     "[data-testid=\"stMainBlockContainer\"] > [data-testid=\"stVerticalBlock\"], .block-container > [data-testid=\"stVerticalBlock\"] { gap: 0 !important; }\n"
@@ -61,33 +63,58 @@ BRAND_CSS = (
     ".st-key-body { padding: 44px 6vw 64px; }\n"
     # wordmark
     ".wm { display: flex; align-items: baseline; gap: 10px; }\n"
-    ".wm-dev { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; font-size: 2.1rem; line-height: 1; }\n"
-    ".wm-en { font-size: .78rem; font-weight: 700; letter-spacing: .24em; }\n"
+    ".wm-dev { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; font-size: 2.1rem; line-height: 1; color: #fe932c !important; }\n"
+    ".wm-en { font-size: .78rem; font-weight: 700; letter-spacing: .24em; color: #131b2e !important; }\n"
     ".brand-tag { font-size: .78rem; opacity: .7; margin-top: 6px; }\n"
     ".side-note { background: rgba(232,236,246,.07); border: 1px solid rgba(232,236,246,.16); border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }\n"
     ".brand-strip { margin-bottom: 10px; }\n"
     # hero (built with st.container(key="hero"))
-    ".st-key-hero { position: relative; overflow: hidden; background: #0b1b3f; border-radius: 0; padding: 56px 6vw 84px; margin: 0; }\n"
-    ".st-key-hero::before { content: ''; position: absolute; right: -150px; top: -130px; width: 540px; height: 540px; border-radius: 50%; background: #12275a; }\n"
-    ".st-key-hero::after { content: ''; position: absolute; right: -70px; bottom: -280px; width: 430px; height: 430px; border-radius: 50%; background: #141f47; }\n"
+    ".st-key-hero { position: relative; overflow: hidden; background: #001026; border-radius: 0; padding: 56px 6vw 84px; margin: 0; }\n"
+    ".st-key-hero::before { content: ''; position: absolute; right: -150px; top: -130px; width: 540px; height: 540px; border-radius: 50%; background: #0b2545; }\n"
+    ".st-key-hero::after { content: ''; position: absolute; right: -70px; bottom: -280px; width: 430px; height: 430px; border-radius: 50%; background: #002b1b; }\n"
     ".st-key-hero > * { position: relative; z-index: 1; }\n"
     ".st-key-hero, .st-key-hero * { color: #ffffff !important; }\n"
-    ".st-key-hero .eyebrow { color: #f28c1c !important; font-weight: 700; letter-spacing: .17em; font-size: .8rem; margin-top: 24px; }\n"
-    ".st-key-hero .hero-title { font-family: 'Bitter', Georgia, serif; font-weight: 800; font-size: 3.3rem; line-height: 1.14; letter-spacing: 0; margin: 16px 0 20px; max-width: 860px; }\n"
-    ".st-key-hero .hero-rule { width: 84px; height: 3px; background: #f28c1c; margin: 0 0 24px; }\n"
+    ".st-key-hero .eyebrow { color: #fe932c !important; font-weight: 700; letter-spacing: .17em; font-size: .8rem; margin-top: 24px; }\n"
+    ".st-key-hero .hero-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 3.3rem; line-height: 1.14; letter-spacing: 0; margin: 16px 0 20px; max-width: 860px; }\n"
+    ".st-key-hero .hero-rule { width: 84px; height: 3px; background: #fe932c; margin: 0 0 24px; }\n"
     ".st-key-hero .hero-sub { color: #a9b4cf !important; font-size: 1.1rem; line-height: 1.7; max-width: 700px; margin-bottom: 26px; }\n"
-    ".st-key-hero .wm-en { color: #f28c1c !important; }\n"
-    ".st-key-hero button[kind=\"primary\"], .st-key-hero [data-testid=\"stBaseButton-primary\"] { background: #f28c1c; padding: .7rem 1rem; }\n"
-    ".st-key-hero button[kind=\"primary\"] *, .st-key-hero [data-testid=\"stBaseButton-primary\"] * { color: #0b1b3f !important; }\n"
+    ".st-key-hero .wm-en { color: #fe932c !important; }\n"
+    ".st-key-hero button[kind=\"primary\"], .st-key-hero [data-testid=\"stBaseButton-primary\"] { background: #fe932c; padding: .7rem 1rem; }\n"
+    ".st-key-hero button[kind=\"primary\"] *, .st-key-hero [data-testid=\"stBaseButton-primary\"] * { color: #663500 !important; }\n"
     ".st-key-hero button[kind=\"secondary\"], .st-key-hero [data-testid=\"stBaseButton-secondary\"] { background: transparent; border: 1px solid rgba(255,255,255,.55); border-radius: 8px; padding: .7rem 1rem; }\n"
-    ".wm-en { color: #f28c1c !important; }\n"
-    ".st-key-topnav { background: #0b1b3f; padding: 14px 6vw; border-bottom: 1px solid rgba(255,255,255,.12); }\n"
+    ".wm-en { color: #fe932c !important; }\n"
+    ".st-key-topnav { background: #001026; padding: 14px 6vw; border-bottom: 1px solid rgba(255,255,255,.10); }\n"
     ".st-key-topnav, .st-key-topnav * { color: #ffffff !important; }\n"
     ".st-key-topnav [data-testid=\"stHorizontalBlock\"] { align-items: center; gap: .25rem; }\n"
     ".st-key-topnav button { background: transparent !important; border: none !important; box-shadow: none !important; white-space: nowrap; font-weight: 500; }\n"
-    ".st-key-topnav button[kind=\"primary\"], .st-key-topnav [data-testid=\"stBaseButton-primary\"] { border-bottom: 2px solid #f28c1c !important; border-radius: 0 !important; }\n"
-    ".st-key-topnav button[kind=\"primary\"] *, .st-key-topnav [data-testid=\"stBaseButton-primary\"] * { color: #f28c1c !important; font-weight: 700 !important; }\n"
+    ".st-key-topnav button[kind=\"primary\"], .st-key-topnav [data-testid=\"stBaseButton-primary\"] { border-bottom: 2px solid #fe932c !important; border-radius: 0 !important; }\n"
+    ".st-key-topnav button[kind=\"primary\"] *, .st-key-topnav [data-testid=\"stBaseButton-primary\"] * { color: #fe932c !important; font-weight: 700 !important; }\n"
     "@media (max-width: 900px) { .st-key-topnav [data-testid=\"stHorizontalBlock\"] { flex-wrap: nowrap !important; overflow-x: auto; } .st-key-topnav [data-testid=\"stColumn\"] { min-width: max-content !important; flex: 0 0 auto !important; } }\n"
+    ".notice { background: #ffdcc3; border: 1px solid #ffb77d; color: #2f1500; border-radius: 12px; padding: 12px 16px; font-size: .9rem; line-height: 1.5; margin-bottom: 18px; }\n"
+    ".stepper { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 22px; }\n"
+    ".step { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: #e8ecf6; font-weight: 600; font-size: .92rem; }\n"
+    ".step-n { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(11,27,63,.12); font-size: .78rem; }\n"
+    ".step.active { background: #001026; }\n"
+    ".step.active, .step.active * { color: #ffffff !important; }\n"
+    ".step.done { background: #d1fae5; }\n"
+    ".step.done, .step.done * { color: #065f46 !important; }\n"
+    ".badge { display: inline-block; padding: 4px 12px; margin: 0 8px 8px 0; border-radius: 999px; font-size: .82rem; font-weight: 600; }\n"
+    ".badge-theme { background: #dae2fd; color: #314769 !important; }\n"
+    ".badge-dept { background: #85f8c4; color: #005137 !important; }\n"
+    ".badge-high { background: #ffdcc3; color: #663500 !important; }\n"
+    ".badge-std { background: #e2e8f0; color: #334155 !important; }\n"
+    ".ticket { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px 24px; box-shadow: 0 4px 12px rgba(11,27,63,.06); margin-bottom: 14px; }\n"
+    ".ticket-quote { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 1.1rem; line-height: 1.5; margin: 12px 0 16px; }\n"
+    ".ticket-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }\n"
+    ".ticket-grid small { display: block; opacity: .65; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }\n"
+    ".tracker { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 4px; }\n"
+    ".track { padding: 7px 14px; border-radius: 999px; background: #e8ecf6; font-size: .84rem; font-weight: 600; }\n"
+    ".track.done, .track.done * { background: #d1fae5; color: #065f46 !important; }\n"
+    ".arc-wrap { display: flex; align-items: center; gap: 14px; padding: 16px 4px; font-weight: 600; }\n"
+    ".arc { width: 30px; height: 30px; border: 4px solid #fe932c; border-top-color: transparent; border-radius: 50%; animation: arcspin .8s linear infinite; }\n"
+    "@keyframes arcspin { to { transform: rotate(360deg); } }\n"
+    ".stApp button { min-height: 48px; }\n"
+    "[data-baseweb=\"select\"] > div { min-height: 48px; }\n"
     "@media (max-width: 700px) { .st-key-hero { padding: 24px 22px 30px; } .st-key-hero .hero-title { font-size: 2.2rem; } .st-key-hero .eyebrow { margin-top: 36px; } }\n"
     "</style>\n"
 )
@@ -388,6 +415,9 @@ def generate_live_recommendations() -> list:
 
 
 def init_state() -> None:
+    st.session_state.setdefault("intake_step", 1)
+    st.session_state.setdefault("draft", None)
+    st.session_state.setdefault("last_ticket", None)
     if "nav" not in st.session_state:
         st.session_state.nav = "Control room"
     if "requests" not in st.session_state:
@@ -588,95 +618,183 @@ def render_control_room() -> None:
     )
 
 
+APP_NAME = "JanSetu AI"
+
+# Illustrative theme -> department mapping. Real routing needs each State's own department
+# directory and official integrations; the day targets are demo values, not official SLAs.
+THEME_DEPARTMENT = {
+    "Water access": ("Public Health Engineering / Jal Shakti dept.", "15 days"),
+    "Roads": ("Public Works Dept. / PMGSY (rural roads)", "30 days"),
+    "Public safety": ("Municipal lighting cell / local Police", "7 days"),
+    "Healthcare": ("State Health Dept. / NHM", "21 days"),
+    "Electricity": ("State DISCOM (power distribution)", "7 days"),
+    "Education": ("State Education Dept. / Samagra Shiksha", "30 days"),
+    "Needs triage": ("Field team to triage", "3 days"),
+}
+
+
+def show_loader(message: str, seconds: float = 0.8) -> None:
+    """Arc-style loader (a rotating bordered circle, in the spirit of loading-ui's Arc).
+    The short pause is cosmetic: the keyword rules themselves run instantly."""
+    slot = st.empty()
+    slot.markdown(
+        f'<div class="arc-wrap"><div class="arc"></div><span>{html.escape(message)}</span></div>',
+        unsafe_allow_html=True,
+    )
+    time.sleep(seconds)
+    slot.empty()
+
+
+def reset_intake() -> None:
+    st.session_state.intake_step = 1
+    st.session_state.draft = None
+    st.session_state.last_ticket = None
+
+
+def render_stepper(step: int) -> None:
+    labels = ["Describe & locate", "AI check", "Send"]
+    pills = ""
+    for number, label in enumerate(labels, start=1):
+        state = "done" if number < step else "active" if number == step else ""
+        pills += f'<div class="step {state}"><span class="step-n">{number}</span>{label}</div>'
+    st.markdown(f'<div class="stepper">{pills}</div>', unsafe_allow_html=True)
+
+
+def urgency_badge(urgency: str) -> str:
+    css = "badge-high" if urgency == "High priority" else "badge-std"
+    return f'<span class="badge {css}">{html.escape(urgency)}</span>'
+
+
+def render_ticket(draft: dict) -> None:
+    st.markdown(
+        '<div class="ticket">'
+        f'<span class="badge badge-theme">{html.escape(draft["theme"])}</span>'
+        f'<span class="badge badge-dept">{html.escape(draft["dept"])}</span>'
+        + urgency_badge(draft["urgency"])
+        + f'<div class="ticket-quote">“{html.escape(draft["quote"])}”</div>'
+        '<div class="ticket-grid">'
+        f'<div><small>Detected language</small>{html.escape(draft["language"])}</div>'
+        f'<div><small>Place</small>{html.escape(draft["place"])}</div>'
+        f'<div><small>Suggested department (demo)</small>{html.escape(draft["dept"])}</div>'
+        f'<div><small>Indicative target (demo)</small>{html.escape(draft["sla"])}</div>'
+        '</div></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_tracker() -> None:
+    stages = [("Received", True), ("Structured", True), ("Routed", False), ("Under review", False), ("Resolved", False)]
+    chips = "".join(f'<span class="track {"done" if done else ""}">{name}</span>' for name, done in stages)
+    st.markdown(f'<div class="tracker">{chips}</div>', unsafe_allow_html=True)
+    st.caption("Illustrative tracker. Later stages need real department integrations.")
+
+
 def render_intake() -> None:
     render_header("Citizen intake")
     st.subheader("Make a need visible.")
-    st.write(
-        "Capture the words as they are spoken. The original voice stays attached "
-        "to the structured evidence record."
+    st.markdown(
+        '<div class="notice"><b>Prototype, not an official government service.</b> '
+        'Sending a signal here does not file a formal grievance. For that, use the official portal '
+        '(for example CPGRAMS). No name, phone number or ID is asked for.</div>',
+        unsafe_allow_html=True,
     )
+    step = st.session_state.intake_step
+    render_stepper(step)
 
-    with st.form("citizen_intake"):
-        language = st.selectbox(
-            "Language",
-            ["Hindi", "English", "Marwari", "Bengali", "Tamil"],
-            index=0,
-        )
-        channel = st.radio(
-            "Channel",
-            ["Voice note", "Text", "Messaging app"],
-            horizontal=True,
-        )
-        if channel == "Voice note":
-            st.audio_input("Record a voice note (optional)")
-            st.caption(
-                "For this prototype, the structured demo record is created even "
-                "without an uploaded audio file."
-            )
-            message = st.text_area(
-                "Optional transcript or summary",
-                placeholder="Example: The water point is 4 km away and the tanker comes once a week…",
-                height=130,
-            )
-        else:
-            message = st.text_area(
-                "Your message",
-                placeholder="Tell us what is happening in your area…",
-                height=160,
-            )
-        place = st.text_input(
-            "Place",
-            value="Kalyanpur, Rajasthan",
-            # any village, block, district or state in India works
-            help="A village, ward, block, or district is enough.",
-        )
-        consent = st.checkbox(
-            "I consent to share this request with public planning teams.",
-            value=True,
-        )
-        submitted = st.form_submit_button(
-            "Send this signal",
-            type="primary",
-            use_container_width=True,
-        )
+    if step == 1:
+        with st.form("citizen_intake"):
+            language = st.selectbox("Language", ["Hindi", "English", "Marwari", "Bengali", "Tamil"], index=0)
+            channel = st.radio("Channel", ["Voice note", "Text", "Messaging app"], horizontal=True)
+            if channel == "Voice note":
+                st.audio_input("Record a voice note (optional)")
+                st.caption("For this prototype, a record is created even without an audio file.")
+                message = st.text_area(
+                    "Optional transcript or summary",
+                    placeholder="Example: The water point is 4 km away and the tanker comes once a week…",
+                    height=130,
+                )
+            else:
+                message = st.text_area("Your message", placeholder="Tell us what is happening in your area…", height=160)
+            states = sorted(INDIA_STATES["state"])
+            left, right = st.columns(2)
+            state = left.selectbox("State / UT", states, index=states.index("Rajasthan"))
+            local = right.text_input("District, block or village", placeholder="e.g. Kalyanpur")
+            consent = st.checkbox("I consent to share this request with public planning teams.", value=True)
+            submitted = st.form_submit_button("Next: check with AI", type="primary", use_container_width=True)
 
-    if submitted:
-        if not consent:
-            st.error("Consent is required before sending a request.")
-        elif not message.strip() and channel != "Voice note":
-            st.error("Add a short message so the planning team can understand the need.")
-        else:
-            quote_text = message.strip() or "Voice note captured — local need shared with JanSetu."
-            detected_theme = classify_theme(quote_text)
-            detected_language = detect_language(quote_text) or language
-            urgency = estimate_urgency(quote_text)
-            new_request = {
+        if submitted:
+            if not consent:
+                st.error("Consent is required before sending a request.")
+            elif not message.strip() and channel != "Voice note":
+                st.error("Add a short message so the planning team can understand the need.")
+            else:
+                show_loader("Reading your message and matching a department…")
+                quote_text = message.strip() or "Voice note captured — local need shared with the planning team."
+                theme = classify_theme(quote_text)
+                dept, sla = THEME_DEPARTMENT[theme]
+                st.session_state.draft = {
+                    "quote": quote_text,
+                    "language": detect_language(quote_text) or language,
+                    "channel": channel,
+                    "place": f"{local.strip()}, {state}" if local.strip() else state,
+                    "theme": theme,
+                    "urgency": estimate_urgency(quote_text),
+                    "dept": dept,
+                    "sla": sla,
+                }
+                st.session_state.intake_step = 2
+                st.rerun()
+
+    elif step == 2:
+        draft = st.session_state.draft
+        st.markdown("**Check what the AI understood**")
+        render_ticket(draft)
+        st.caption(
+            "Structuring uses transparent keyword rules, not a black-box model. "
+            "If something looks wrong, go back and edit."
+        )
+        left, right = st.columns(2)
+        if left.button("Edit", use_container_width=True):
+            st.session_state.intake_step = 1
+            st.rerun()
+        if right.button("Confirm & send", type="primary", use_container_width=True):
+            show_loader("Adding your signal to the evidence stream…", 0.6)
+            request = {
                 "id": f"SIG-{2050 + len(st.session_state.requests)}",
-                "quote": quote_text,
-                "summary": f"{detected_theme} concern raised in {place or 'Rajasthan'}",
-                "language": detected_language,
-                "channel": channel,
-                "place": place or "Demo location · Rajasthan",
+                "quote": draft["quote"],
+                "summary": f"{draft['theme']} concern raised in {draft['place']}",
+                "language": draft["language"],
+                "channel": draft["channel"],
+                "place": draft["place"],
                 "time": "just now",
                 "status": "Structured",
-                "theme": detected_theme,
-                "urgency": urgency,
+                "theme": draft["theme"],
+                "urgency": draft["urgency"],
             }
-            st.session_state.requests.insert(0, new_request)
-            st.success(
-                f"Signal structured: theme = **{detected_theme}** · "
-                f"language = **{detected_language}** · urgency = **{urgency}**"
-            )
-            st.caption(
-                "Structuring here uses transparent keyword rules, not a black-box model — "
-                "every classification traces back to the words used. Check Recommendations "
-                "to see this signal already counted."
-            )
+            st.session_state.requests.insert(0, request)
+            st.session_state.last_ticket = {**draft, "id": request["id"]}
+            st.session_state.intake_step = 3
+            st.rerun()
 
-    st.info(
-        "Privacy by default: this demo does not require a name, phone number, "
-        "or other personal details."
-    )
+    else:
+        ticket = st.session_state.last_ticket
+        st.success(f"Signal {ticket['id']} recorded.")
+        render_ticket(ticket)
+        st.markdown("**Copy a summary for a portal or WhatsApp grievance bot**")
+        st.code(
+            f"{APP_NAME} signal {ticket['id']}\n"
+            f"Issue: {ticket['theme']}\n"
+            f"Location: {ticket['place']}\n"
+            f"Priority: {ticket['urgency']}\n"
+            f"Suggested department: {ticket['dept']}\n"
+            f"Citizen words ({ticket['language']}): {ticket['quote']}",
+            language=None,
+        )
+        st.markdown("**Status**")
+        render_tracker()
+        left, right = st.columns(2)
+        left.button("Report another issue", use_container_width=True, on_click=reset_intake)
+        right.button("See it on the dashboard", type="primary", use_container_width=True, on_click=go, args=("Recommendations",))
 
 
 def render_evidence() -> None:
