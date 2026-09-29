@@ -45,20 +45,28 @@ BRAND_CSS = (
     "<style>\n"
     "@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@700&display=swap');\n"
     "html, body, .stApp, [data-testid=\"stAppViewContainer\"] { font-family: 'Inter', sans-serif; }\n"
-    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #faf8ff !important; }\n"
-    + _scoped("h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], [data-testid=\"stCaptionContainer\"], [data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *", "color: #131b2e;")
+    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #F8FAFC !important; }\n"
+    + _scoped("h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], [data-testid=\"stCaptionContainer\"], [data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *", "color: #0F172A;")
     + _scoped("[data-testid=\"stMetricDelta\"] *", "color: #287d69;")
-    + _scoped("h1, h2, h3", "font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 700 !important; letter-spacing: -0.01em;")
+    + _scoped("h1", "font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 800 !important; font-size: 2.25rem !important; line-height: 1.15 !important; letter-spacing: -0.02em !important;")
+    + _scoped("h2", "font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 700 !important; font-size: 1.5rem !important; line-height: 1.25 !important; letter-spacing: -0.015em !important;")
+    + _scoped("h3", "font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 600 !important; font-size: 1.125rem !important; line-height: 1.35 !important; letter-spacing: -0.01em !important;")
+    + _scoped("p, li, label, div[data-testid=\"stMarkdownContainer\"] p", "font-size: .9375rem; line-height: 1.6;")
+    + _scoped("[data-testid=\"stCaptionContainer\"], small", "font-size: .8125rem !important; line-height: 1.4 !important; letter-spacing: .01em; color: #64748B !important;")
+    + _scoped("[data-testid=\"stMetricValue\"]", "font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 700 !important; font-variant-numeric: tabular-nums;")
     + _scoped("h1", "font-size: 2.6rem !important; line-height: 1.1 !important;")
-    + _scoped("[data-testid=\"stMetric\"]", "background: #ffffff; border: 1px solid #dae2fd; border-radius: 16px; padding: 14px 16px;")
-    + _scoped("[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details", "background: #ffffff; border-color: #dae2fd; border-radius: 16px;")
-    + _scoped("[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input", "background: #ffffff !important; color: #131b2e !important; border-color: #c4c6cf !important;")
-    + "[data-testid=\"stSidebar\"] { background: #001026; }\n"
+    + _scoped("[data-testid=\"stMetric\"]", "background: #ffffff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15,23,42,.05); transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s ease;")
+    + _scoped("[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details", "background: #ffffff; border-color: #E2E8F0; border-radius: 12px; transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s ease;")
+    + _scoped("[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input", "background: #ffffff !important; color: #0F172A !important; border-color: #E2E8F0 !important;")
+    + "[data-testid=\"stSidebar\"] { background: #0B2545; }\n"
     "[data-testid=\"stSidebar\"] * { color: #e8ecf6; }\n"
     "[data-testid=\"stSidebar\"] hr { border-color: rgba(255,255,255,.14); }\n"
-    + BTN_PRIMARY.replace(", ", " {background: #fe932c; border: none; border-radius: 10px;} ") + " {background: #fe932c; border: none; border-radius: 10px;}\n"
-    ".stApp button[kind=\"primary\"] *, .stApp [data-testid=\"stBaseButton-primary\"] *, .stApp [data-testid=\"stBaseButton-primaryFormSubmit\"] * { color: #663500 !important; font-weight: 700; }\n"
-    "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"] { box-shadow: 0 1px 2px rgba(19,27,46,.04), 0 8px 22px rgba(19,27,46,.06); }\n"
+    + BTN_PRIMARY.replace(", ", " {background: #D9531E; border: none; border-radius: 8px; box-shadow: 0 2px 4px rgba(217,83,30,.2); transition: all .18s ease-out;} ") + " {background: #D9531E; border: none; border-radius: 8px; box-shadow: 0 2px 4px rgba(217,83,30,.2); transition: all .18s ease-out;}\n"
+    ".stApp button[kind=\"primary\"] *, .stApp [data-testid=\"stBaseButton-primary\"] *, .stApp [data-testid=\"stBaseButton-primaryFormSubmit\"] * { color: #FFFFFF !important; font-weight: 600; }\n"
+    "button[kind=\"primary\"]:hover, [data-testid=\"stBaseButton-primary\"]:hover { background-color: #C2410C !important; transform: translateY(-1px); }\n"
+    "button[kind=\"secondary\"], [data-testid=\"stBaseButton-secondary\"] { border: 1.5px solid #E2E8F0 !important; border-radius: 8px !important; color: #0B2545 !important; font-weight: 600 !important; transition: all .18s ease-out; }\n"
+    "button[kind=\"secondary\"]:hover, [data-testid=\"stBaseButton-secondary\"]:hover { border-color: #0B2545 !important; background-color: #F1F5F9 !important; }\n"
+    "[data-testid=\"stMetric\"]:hover, [data-testid=\"stVerticalBlockBorderWrapper\"]:hover { transform: translateY(-3px); box-shadow: 0 10px 22px -4px rgba(11,37,69,.08), 0 4px 6px -4px rgba(11,37,69,.04); border-color: #CBD5E1 !important; }\n"
     "#MainMenu, footer { visibility: hidden; }\n"
     ".block-container, [data-testid=\"stMainBlockContainer\"] { padding: 0 !important; max-width: 100% !important; }\n"
     "[data-testid=\"stMainBlockContainer\"] > [data-testid=\"stVerticalBlock\"], .block-container > [data-testid=\"stVerticalBlock\"] { gap: 0 !important; }\n"
@@ -67,44 +75,52 @@ BRAND_CSS = (
     # wordmark
     ".wm { display: flex; align-items: baseline; gap: 10px; }\n"
     ".wm-dev { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.55rem; line-height: 1; }\n"
-    ".wm-en { font-size: .78rem; font-weight: 700; letter-spacing: .24em; color: #fe932c !important; margin-left: 2px; }\n"
+    ".wm-en { font-size: .78rem; font-weight: 700; letter-spacing: .24em; color: #D9531E !important; margin-left: 2px; }\n"
     ".brand-tag { font-size: .78rem; opacity: .7; margin-top: 6px; }\n"
     ".side-note { background: rgba(232,236,246,.07); border: 1px solid rgba(232,236,246,.16); border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }\n"
     ".brand-strip { margin-bottom: 10px; }\n"
     # hero (built with st.container(key="hero"))
-    ".st-key-hero { position: relative; overflow: hidden; background: #001026; border-radius: 0; padding: 56px 6vw 84px; margin: 0; }\n"
-    ".st-key-hero::before { content: ''; position: absolute; right: -150px; top: -130px; width: 540px; height: 540px; border-radius: 50%; background: #0b2545; }\n"
-    ".st-key-hero::after { content: ''; position: absolute; right: -70px; bottom: -280px; width: 430px; height: 430px; border-radius: 50%; background: #002b1b; }\n"
+    ".st-key-hero { position: relative; overflow: hidden; background: linear-gradient(135deg, #0B2545 0%, #134074 65%, #1D4E89 100%); border-radius: 0; padding: 56px 6vw 84px; margin: 0; animation: civicFadeIn .5s cubic-bezier(.16,1,.3,1) forwards; }\n"
+    "@keyframes civicFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }\n"
+    ".st-key-body > div { animation: civicFadeIn .4s cubic-bezier(.16,1,.3,1) forwards; }\n"
+    ".st-key-hero::before { content: ''; position: absolute; top: -20%; right: -5%; width: 480px; height: 480px; border-radius: 50%; background: radial-gradient(circle, rgba(217,83,30,.22) 0%, rgba(217,83,30,0) 70%); }\n"
+    ".st-key-hero::after { content: ''; position: absolute; right: -70px; bottom: -280px; width: 380px; height: 380px; border-radius: 50%; background: rgba(19,64,116,.35); }\n"
     ".st-key-hero > * { position: relative; z-index: 1; }\n"
     ".st-key-hero, .st-key-hero * { color: #ffffff !important; }\n"
-    ".st-key-hero .eyebrow { color: #fe932c !important; font-weight: 700; letter-spacing: .17em; font-size: .8rem; margin-top: 24px; }\n"
-    ".st-key-hero .hero-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 3.3rem; line-height: 1.14; letter-spacing: 0; margin: 16px 0 20px; max-width: 860px; }\n"
-    ".st-key-hero .hero-rule { width: 84px; height: 3px; background: #fe932c; margin: 0 0 24px; }\n"
+    ".st-key-hero .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: #f4f6fb !important; font-weight: 600; letter-spacing: .04em; font-size: .74rem; margin-top: 24px; padding: 5px 13px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); }\n"
+    ".st-key-hero .eyebrow::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #D9531E; animation: civicPulseDot 1.6s ease-in-out infinite; }\n"
+    "@keyframes civicPulseDot { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,83,30,.55); } 50% { box-shadow: 0 0 0 6px rgba(217,83,30,0); } }\n"
+    ".st-key-hero .hero-title { font-family: 'Plus Jakarta Sans', sans-serif !important; font-weight: 800 !important; font-size: 2.5rem; line-height: 1.15; letter-spacing: -0.02em; margin: 16px 0 20px; max-width: 860px; }\n"
+    ".st-key-hero .hero-rule { width: 84px; height: 3px; background: #D9531E; margin: 0 0 24px; }\n"
     ".st-key-hero .hero-sub { color: #a9b4cf !important; font-size: 1.1rem; line-height: 1.7; max-width: 700px; margin-bottom: 26px; }\n"
-    ".st-key-hero .wm-en { color: #fe932c !important; }\n"
-    ".st-key-hero button[kind=\"primary\"], .st-key-hero [data-testid=\"stBaseButton-primary\"] { background: #fe932c; padding: .7rem 1rem; }\n"
-    ".st-key-hero button[kind=\"primary\"] *, .st-key-hero [data-testid=\"stBaseButton-primary\"] * { color: #663500 !important; }\n"
+    ".st-key-hero .wm-en { color: #D9531E !important; }\n"
+    ".st-key-hero button[kind=\"primary\"], .st-key-hero [data-testid=\"stBaseButton-primary\"] { background: #D9531E; padding: .7rem 1rem; }\n"
+    ".st-key-hero button[kind=\"primary\"] *, .st-key-hero [data-testid=\"stBaseButton-primary\"] * { color: #FFFFFF !important; }\n"
     ".st-key-hero button[kind=\"secondary\"], .st-key-hero [data-testid=\"stBaseButton-secondary\"] { background: transparent; border: 1px solid rgba(255,255,255,.55); border-radius: 8px; padding: .7rem 1rem; }\n"
-    ".wm-en { color: #fe932c !important; }\n"
-    ".st-key-topnav { background: #001026; padding: 14px 6vw; border-bottom: 1px solid rgba(255,255,255,.10); }\n"
-    ".st-key-topnav, .st-key-topnav * { color: #ffffff !important; }\n"
+    ".wm-en { color: #D9531E !important; }\n"
+    ".st-key-topnav { background: #FFFFFF; padding: 0 6vw; height: 64px; display: flex; align-items: center; border-bottom: 1px solid #E2E8F0; }\n"
+    ".st-key-topnav [data-testid=\"stVerticalBlock\"] { gap: 0 !important; }\n"
+    ".st-key-topnav, .st-key-topnav * { color: #64748B !important; }\n"
+    ".st-key-topnav .wm-dev { color: #0B2545 !important; }\n"
+    ".st-key-topnav .india-pill { display: inline-block; margin-left: 8px; font-size: .68rem; font-weight: 700; padding: 2px 7px; border-radius: 5px; background: #F1F5F9; color: #0B2545 !important; vertical-align: middle; }\n"
     ".st-key-topnav [data-testid=\"stHorizontalBlock\"] { align-items: center; gap: .25rem; }\n"
-    ".st-key-topnav button { background: transparent !important; border: none !important; box-shadow: none !important; white-space: nowrap; font-weight: 500; }\n"
-    ".st-key-topnav button[kind=\"primary\"], .st-key-topnav [data-testid=\"stBaseButton-primary\"] { border-bottom: 2px solid #fe932c !important; border-radius: 0 !important; }\n"
-    ".st-key-topnav button[kind=\"primary\"] *, .st-key-topnav [data-testid=\"stBaseButton-primary\"] * { color: #fe932c !important; font-weight: 700 !important; }\n"
+    ".st-key-topnav button { background: transparent !important; border: none !important; box-shadow: none !important; white-space: nowrap; font-weight: 600; font-size: .8rem; padding: 0 2px !important; height: 64px !important; border-radius: 0 !important; color: #64748B !important; }\n"
+    ".st-key-topnav button:hover { color: #0B2545 !important; }\n"
+    ".st-key-topnav button[kind=\"primary\"], .st-key-topnav [data-testid=\"stBaseButton-primary\"] { border-bottom: 3px solid #D9531E !important; border-radius: 0 !important; box-shadow: none !important; }\n"
+    ".st-key-topnav button[kind=\"primary\"] *, .st-key-topnav [data-testid=\"stBaseButton-primary\"] * { color: #0B2545 !important; font-weight: 700 !important; }\n"
     "@media (max-width: 900px) { .st-key-topnav [data-testid=\"stHorizontalBlock\"] { flex-wrap: nowrap !important; overflow-x: auto; } .st-key-topnav [data-testid=\"stColumn\"] { min-width: max-content !important; flex: 0 0 auto !important; } }\n"
-    ".notice { background: #ffdcc3; border: 1px solid #ffb77d; color: #2f1500; border-radius: 12px; padding: 12px 16px; font-size: .9rem; line-height: 1.5; margin-bottom: 18px; }\n"
+    ".notice { background: #FFF1EC; border: 1px solid #FDBA74; color: #7C2D12; border-radius: 10px; padding: 12px 16px; font-size: .9rem; line-height: 1.5; margin-bottom: 18px; }\n"
     ".stepper { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 22px; }\n"
     ".step { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: #e8ecf6; font-weight: 600; font-size: .92rem; }\n"
     ".step-n { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(11,27,63,.12); font-size: .78rem; }\n"
-    ".step.active { background: #001026; }\n"
+    ".step.active { background: #0B2545; }\n"
     ".step.active, .step.active * { color: #ffffff !important; }\n"
     ".step.done { background: #d1fae5; }\n"
     ".step.done, .step.done * { color: #065f46 !important; }\n"
     ".badge { display: inline-block; padding: 4px 12px; margin: 0 8px 8px 0; border-radius: 999px; font-size: .82rem; font-weight: 600; }\n"
-    ".badge-theme { background: #dae2fd; color: #314769 !important; }\n"
-    ".badge-dept { background: #85f8c4; color: #005137 !important; }\n"
-    ".badge-high { background: #ffdcc3; color: #663500 !important; }\n"
+    ".badge-theme { background: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A; }\n"
+    ".badge-dept { background: #ECFDF5; color: #065F46 !important; border: 1px solid #A7F3D0; }\n"
+    ".badge-high { background: #FFF1EC; color: #C2410C !important; border: 1px solid #FDBA74; }\n"
     ".badge-std { background: #e2e8f0; color: #334155 !important; }\n"
     ".ticket { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px 24px; box-shadow: 0 4px 12px rgba(11,27,63,.06); margin-bottom: 14px; }\n"
     ".ticket-quote { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 1.1rem; line-height: 1.5; margin: 12px 0 16px; }\n"
@@ -114,7 +130,7 @@ BRAND_CSS = (
     ".track { padding: 7px 14px; border-radius: 999px; background: #e8ecf6; font-size: .84rem; font-weight: 600; }\n"
     ".track.done, .track.done * { background: #d1fae5; color: #065f46 !important; }\n"
     ".arc-wrap { display: flex; align-items: center; gap: 14px; padding: 16px 4px; font-weight: 600; }\n"
-    ".arc { width: 30px; height: 30px; border: 4px solid #fe932c; border-top-color: transparent; border-radius: 50%; animation: arcspin .8s linear infinite; }\n"
+    ".arc { width: 22px; height: 22px; border: 2.5px solid #E2E8F0; border-top-color: #0B2545; border-radius: 50%; animation: arcspin .75s linear infinite; }\n"
     "@keyframes arcspin { to { transform: rotate(360deg); } }\n"
     ".stApp button { min-height: 48px; }\n"
     "[data-baseweb=\"select\"] > div { min-height: 48px; }\n"
@@ -430,8 +446,9 @@ def init_state() -> None:
 PAGES = ["Control room", "Citizen intake", "Evidence library", "Recommendations", "Ask Civic Pulse", "Governance & DPG"]
 
 
-def wordmark() -> str:
-    return '<div class="wm"><span class="wm-dev">Civic</span><span class="wm-en">PULSE</span></div>'
+def wordmark(with_pill: bool = False) -> str:
+    pill = '<span class="india-pill">INDIA</span>' if with_pill else ''
+    return f'<div class="wm"><span class="wm-dev">Civic</span><span class="wm-en">PULSE</span>{pill}</div>'
 
 
 def go(page: str) -> None:
@@ -453,7 +470,7 @@ def render_topnav() -> str:
     current = st.session_state.nav
     with st.container(key="topnav"):
         columns = st.columns([2.2, 1.1, 1.3, 1, 1.5, 1, 1.2])
-        columns[0].markdown(wordmark(), unsafe_allow_html=True)
+        columns[0].markdown(wordmark(with_pill=True), unsafe_allow_html=True)
         for column, (page, label) in zip(columns[1:], NAV_LABELS.items()):
             column.button(
                 label,
@@ -469,7 +486,7 @@ def render_topnav() -> str:
 def render_hero() -> None:
     with st.container(key="hero"):
         st.markdown(
-            '<div class="eyebrow">A DIGITAL PUBLIC GOOD · MULTILINGUAL</div>'
+            '<div class="eyebrow">ALL-INDIA CITIZEN SIGNAL FEED · 36 STATES &amp; UTs</div>'
             + '<div class="hero-title">A national bridge between citizen voice and public infrastructure policy</div>'
             + '<div class="hero-rule"></div>'
             + '<div class="hero-sub">Citizens speak in their own language over voice, SMS or WhatsApp. '
