@@ -6,6 +6,7 @@ from datetime import datetime
 
 import requests
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -68,6 +69,9 @@ BRAND_CSS = (
     "button[kind=\"secondary\"]:hover, [data-testid=\"stBaseButton-secondary\"]:hover { border-color: #0B2545 !important; background-color: #F1F5F9 !important; }\n"
     "[data-testid=\"stMetric\"]:hover, [data-testid=\"stVerticalBlockBorderWrapper\"]:hover { transform: translateY(-3px); box-shadow: 0 10px 22px -4px rgba(11,37,69,.08), 0 4px 6px -4px rgba(11,37,69,.04); border-color: #CBD5E1 !important; }\n"
     "#MainMenu, footer { visibility: hidden; }\n"
+    ".stApp, [data-testid=\"stAppViewContainer\"] { transition: background-color .25s ease; }\n"
+    "[data-testid=\"stMetric\"], [data-testid=\"stVerticalBlockBorderWrapper\"], [data-baseweb=\"input\"], "
+    "[data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input { transition: background-color .25s ease, border-color .25s ease, transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s ease; }\n"
     ".block-container, [data-testid=\"stMainBlockContainer\"] { padding: 0 !important; max-width: 100% !important; }\n"
     "[data-testid=\"stMainBlockContainer\"] > [data-testid=\"stVerticalBlock\"], .block-container > [data-testid=\"stVerticalBlock\"] { gap: 0 !important; }\n"
     "[data-testid=\"stHeader\"], [data-testid=\"stDecoration\"], [data-testid=\"stToolbar\"], [data-testid=\"stSidebar\"], [data-testid=\"stSidebarCollapsedControl\"], [data-testid=\"stExpandSidebarButton\"] { display: none !important; }\n"
@@ -139,8 +143,53 @@ BRAND_CSS = (
 )
 
 
+DARK_OVERRIDE_CSS = (
+    "<style>\n"
+    ".stApp, [data-testid=\"stAppViewContainer\"], [data-testid=\"stHeader\"] { background: #0B1220 !important; }\n"
+    + _scoped(
+        "h1, h2, h3, h4, p, li, label, span, div[data-testid=\"stMarkdownContainer\"], "
+        "[data-testid=\"stMetricLabel\"] *, [data-testid=\"stMetricValue\"] *",
+        "color: #E5E9F5 !important;",
+    )
+    + _scoped("[data-testid=\"stCaptionContainer\"], small", "color: #8CA0C6 !important;")
+    + _scoped("[data-testid=\"stMetric\"]", "background: #131B2E !important; border-color: #263354 !important;")
+    + _scoped(
+        "[data-testid=\"stVerticalBlockBorderWrapper\"], [data-testid=\"stExpander\"] details",
+        "background: #131B2E !important; border-color: #263354 !important;",
+    )
+    + _scoped(
+        "[data-baseweb=\"input\"], [data-baseweb=\"textarea\"], [data-baseweb=\"select\"] > div, textarea, input",
+        "background: #131B2E !important; color: #E5E9F5 !important; border-color: #263354 !important;",
+    )
+    + ".st-key-topnav { background: #0B1220 !important; border-bottom-color: #263354 !important; }\n"
+    ".st-key-topnav, .st-key-topnav * { color: #8CA0C6 !important; }\n"
+    ".st-key-topnav .wm-dev { color: #E5E9F5 !important; }\n"
+    ".st-key-topnav .india-pill { background: #1B2540 !important; color: #E5E9F5 !important; }\n"
+    ".st-key-topnav button:hover { color: #E5E9F5 !important; }\n"
+    ".notice { background: #2A1B0E !important; border-color: #7C4A1E !important; color: #FFD9B3 !important; }\n"
+    ".ticket { background: #131B2E !important; border-color: #263354 !important; }\n"
+    ".track { background: #1B2540 !important; color: #CBD5E1 !important; }\n"
+    ".side-note { background: rgba(232,236,246,.06) !important; }\n"
+    "</style>\n"
+)
+
+
 def apply_branding() -> None:
     st.markdown(BRAND_CSS, unsafe_allow_html=True)
+    if st.session_state.get("theme") == "dark":
+        st.markdown(DARK_OVERRIDE_CSS, unsafe_allow_html=True)
+
+
+def toggle_theme() -> None:
+    st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
+
+
+def chart_theme_colors() -> dict:
+    if st.session_state.get("theme") == "dark":
+        return {"axis": "#8CA0C6", "grid": "#263354", "muted": "#94A3B8"}
+    return {"axis": "#64748B", "grid": "#E2E8F0", "muted": "#64748B"}
+
+
 
 
 BASE_REQUESTS = [
@@ -434,6 +483,7 @@ def generate_live_recommendations() -> list:
 
 
 def init_state() -> None:
+    st.session_state.setdefault("theme", "light")
     st.session_state.setdefault("intake_step", 1)
     st.session_state.setdefault("draft", None)
     st.session_state.setdefault("last_ticket", None)
@@ -469,9 +519,9 @@ NAV_LABELS = {
 def render_topnav() -> str:
     current = st.session_state.nav
     with st.container(key="topnav"):
-        columns = st.columns([2.2, 1.1, 1.3, 1, 1.5, 1, 1.2])
+        columns = st.columns([2.0, 1.05, 1.25, 0.95, 1.45, 0.95, 1.15, 0.6])
         columns[0].markdown(wordmark(with_pill=True), unsafe_allow_html=True)
-        for column, (page, label) in zip(columns[1:], NAV_LABELS.items()):
+        for column, (page, label) in zip(columns[1:-1], NAV_LABELS.items()):
             column.button(
                 label,
                 key=f"nav_{page}",
@@ -480,6 +530,14 @@ def render_topnav() -> str:
                 args=(page,),
                 use_container_width=True,
             )
+        theme_icon = "🌙" if st.session_state.theme == "light" else "☀️"
+        columns[-1].button(
+            theme_icon,
+            key="theme_toggle",
+            help="Switch light / dark theme",
+            on_click=toggle_theme,
+            use_container_width=True,
+        )
     return current
 
 
@@ -617,10 +675,56 @@ def render_hotspots() -> None:
 
 
 def render_live_pulse() -> None:
-    st.subheader("Live signal pulse")
-    st.caption("Recomputed from every signal in this session — including what you just submitted.")
-    counts = pd.Series([item.get("theme", "Needs triage") for item in st.session_state.requests]).value_counts()
-    st.bar_chart(counts)
+    colors = chart_theme_colors()
+    left, right = st.columns([1.4, 1])
+
+    with left:
+        st.subheader("Live signal pulse")
+        st.caption("Recomputed from every signal in this session — including what you just submitted.")
+        counts = (
+            pd.Series([item.get("theme", "Needs triage") for item in st.session_state.requests])
+            .value_counts()
+            .reset_index()
+        )
+        counts.columns = ["theme", "count"]
+        bar_chart = (
+            alt.Chart(counts)
+            .mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6, size=24, color="#D9531E")
+            .encode(
+                x=alt.X("theme:N", sort="-y", title=None, axis=alt.Axis(labelAngle=0, labelFontSize=10.5)),
+                y=alt.Y("count:Q", title="Signals"),
+                tooltip=["theme", "count"],
+            )
+            .properties(height=210)
+            .configure_view(strokeWidth=0)
+            .configure_axis(grid=False, domainColor=colors["grid"], labelColor=colors["axis"], titleColor=colors["axis"])
+        )
+        st.altair_chart(bar_chart, use_container_width=True)
+
+    with right:
+        st.subheader("Urgency mix")
+        st.caption("Share of signals flagged high priority vs standard.")
+        urgency_counts = (
+            pd.Series([item.get("urgency", "Standard") for item in st.session_state.requests])
+            .value_counts()
+            .reset_index()
+        )
+        urgency_counts.columns = ["urgency", "count"]
+        donut = (
+            alt.Chart(urgency_counts)
+            .mark_arc(innerRadius=52, outerRadius=88, stroke="#FFFFFF", strokeWidth=2)
+            .encode(
+                theta=alt.Theta("count:Q"),
+                color=alt.Color(
+                    "urgency:N",
+                    scale=alt.Scale(domain=["High priority", "Standard"], range=["#D9531E", "#CBD5E1"]),
+                    legend=alt.Legend(title=None, orient="bottom", labelColor=colors["axis"]),
+                ),
+                tooltip=["urgency", "count"],
+            )
+            .properties(height=210)
+        )
+        st.altair_chart(donut, use_container_width=True)
 
 
 def render_control_room() -> None:
@@ -1057,6 +1161,24 @@ def render_recommendations() -> None:
         for item in RECOMMENDATIONS
         if not issue_filter or item["type"] in issue_filter
     ]
+
+    if recommendations:
+        colors = chart_theme_colors()
+        score_df = pd.DataFrame(recommendations)[["title", "score"]]
+        score_chart = (
+            alt.Chart(score_df)
+            .mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6, size=20, color="#0B2545")
+            .encode(
+                y=alt.Y("title:N", sort="-x", title=None, axis=alt.Axis(labelFontSize=10.5, labelLimit=260)),
+                x=alt.X("score:Q", title="Priority score", scale=alt.Scale(domain=[0, 100])),
+                tooltip=["title", "score"],
+            )
+            .properties(height=34 * len(score_df) + 30)
+            .configure_view(strokeWidth=0)
+            .configure_axis(grid=False, domainColor=colors["grid"], labelColor=colors["axis"], titleColor=colors["axis"])
+        )
+        st.altair_chart(score_chart, use_container_width=True)
+
     for item in recommendations:
         with st.container(border=True):
             columns = st.columns([3.2, 1, 1])
@@ -1087,6 +1209,22 @@ def render_recommendations() -> None:
     live_recommendations = generate_live_recommendations()
     if not live_recommendations:
         st.info("No live signals yet — submit one from Citizen intake to see it scored here.")
+    else:
+        colors = chart_theme_colors()
+        live_df = pd.DataFrame(live_recommendations)[["type", "score"]]
+        live_chart = (
+            alt.Chart(live_df)
+            .mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6, size=20, color="#D9531E")
+            .encode(
+                y=alt.Y("type:N", sort="-x", title=None, axis=alt.Axis(labelFontSize=10.5)),
+                x=alt.X("score:Q", title="Priority score", scale=alt.Scale(domain=[0, 100])),
+                tooltip=["type", "score"],
+            )
+            .properties(height=34 * len(live_df) + 30)
+            .configure_view(strokeWidth=0)
+            .configure_axis(grid=False, domainColor=colors["grid"], labelColor=colors["axis"], titleColor=colors["axis"])
+        )
+        st.altair_chart(live_chart, use_container_width=True)
     for item in live_recommendations:
         with st.container(border=True):
             columns = st.columns([3.2, 1, 1])
