@@ -1,7 +1,10 @@
 import html
+import os
 import random
 import time
 from datetime import datetime
+
+import requests
 
 import pandas as pd
 import streamlit as st
@@ -424,7 +427,7 @@ def init_state() -> None:
         st.session_state.requests = list(BASE_REQUESTS)
 
 
-PAGES = ["Control room", "Citizen intake", "Evidence library", "Recommendations", "Governance & DPG"]
+PAGES = ["Control room", "Citizen intake", "Evidence library", "Recommendations", "Ask Civic Pulse", "Governance & DPG"]
 
 
 def wordmark() -> str:
@@ -441,6 +444,7 @@ NAV_LABELS = {
     "Citizen intake": "Report an issue",
     "Evidence library": "Evidence",
     "Recommendations": "Recommendations",
+    "Ask Civic Pulse": "Ask AI",
     "Governance & DPG": "Governance",
 }
 
@@ -448,7 +452,7 @@ NAV_LABELS = {
 def render_topnav() -> str:
     current = st.session_state.nav
     with st.container(key="topnav"):
-        columns = st.columns([2.6, 1.1, 1.3, 1, 1.5, 1.2])
+        columns = st.columns([2.2, 1.1, 1.3, 1, 1.5, 1, 1.2])
         columns[0].markdown(wordmark(), unsafe_allow_html=True)
         for column, (page, label) in zip(columns[1:], NAV_LABELS.items()):
             column.button(
@@ -687,6 +691,205 @@ def render_tracker() -> None:
     chips = "".join(f'<span class="track {"done" if done else ""}">{name}</span>' for name, done in stages)
     st.markdown(f'<div class="tracker">{chips}</div>', unsafe_allow_html=True)
     st.caption("Illustrative tracker. Later stages need real department integrations.")
+
+
+SCHEME_SYSTEM_PROMPT = """You are the scheme assistant inside Civic Pulse, an independent AI helper for \
+Indian government schemes, certificates and public benefits. You are NOT an official government website \
+and must never claim to be one or guarantee an outcome.
+
+Answer in {language_instruction}.
+
+Structure every answer using these exact Markdown headings, in this order, and skip a heading only if it is \
+genuinely not applicable to the question:
+
+### Quick Answer
+A concise 2-3 sentence direct answer.
+
+### Eligibility
+Bullet points.
+
+### Benefits
+Bullet points describing what the person can receive.
+
+### Documents Required
+A bullet checklist.
+
+### How to Apply
+Numbered steps.
+
+### Official Source
+Name the government department or portal only if you are confident (for example "pmkisan.gov.in" or the \
+"National Scholarship Portal"). Do not invent a URL you are not sure about — name the portal instead of \
+guessing a link.
+
+### Important
+Always end with this exact line: "Eligibility and scheme rules can change. Verify the latest information on \
+the official government portal."
+
+If you cannot verify a detail confidently, say so plainly (for example "I couldn't verify this detail from an \
+official source.") instead of presenting it as certain. Keep the whole answer concise and skimmable. Never \
+invent scheme names, amounts, or deadlines."""
+
+_AI_LANGUAGE_INSTRUCTIONS = {
+    "English": "English",
+    "हिन्दी": "Hindi, written in Devanagari script",
+    "Hinglish": "Hinglish (Roman script, naturally mixing Hindi and English as commonly spoken)",
+}
+
+SCHEME_EXAMPLES = [
+    "Mere liye kaunsi scholarship available hai?",
+    "Income certificate kaise banega?",
+    "PM-Kisan ke liye kaun eligible hai?",
+    "Mujhe government schemes batao",
+]
+
+
+def _read_secret(name: str):
+    try:
+        if name in st.secrets:
+            return st.secrets[name]
+    except Exception:
+        pass
+    return os.environ.get(name)
+
+
+def get_ai_credentials():
+    """Looks for an API key in Secrets first, then environment variables.
+    Anthropic is tried first, then OpenAI — whichever key is present is used."""
+    anthropic_key = _read_secret("ANTHROPIC_API_KEY")
+    if anthropic_key:
+        return "anthropic", anthropic_key
+    openai_key = _read_secret("OPENAI_API_KEY")
+    if openai_key:
+        return "openai", openai_key
+    return None, None
+
+
+def call_anthropic(api_key: str, system_prompt: str, history: list) -> str:
+    model = _read_secret("ANTHROPIC_MODEL") or "claude-sonnet-5"
+    response = requests.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": model,
+            "max_tokens": 1000,
+            "system": system_prompt,
+            "messages": history,
+        },
+        timeout=30,
+    )
+    response.raise_for_status()
+    data = response.json()
+    return "".join(
+        block.get("text", "") for block in data.get("content", []) if block.get("type") == "text"
+    ).strip() or "I couldn't verify this information from an official source."
+
+
+def call_openai(api_key: str, system_prompt: str, history: list) -> str:
+    model = _read_secret("OPENAI_MODEL") or "gpt-4o-mini"
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={
+            "model": model,
+            "messages": [{"role": "system", "content": system_prompt}] + history,
+            "max_tokens": 900,
+            "temperature": 0.3,
+        },
+        timeout=30,
+    )
+    response.raise_for_status()
+    data = response.json()
+    return data["choices"][0]["message"]["content"].strip()
+
+
+def ask_ai(provider: str, api_key: str, system_prompt: str, history: list) -> str:
+    if provider == "anthropic":
+        return call_anthropic(api_key, system_prompt, history)
+    return call_openai(api_key, system_prompt, history)
+
+
+def render_ask_ai() -> None:
+    render_header("Ask Civic Pulse")
+    st.subheader("Your AI-powered gateway to government services.")
+    st.write(
+        "Find the schemes, services and benefits you may be eligible for — explained simply, "
+        "in English, Hindi or Hinglish."
+    )
+    st.markdown(
+        '<div class="notice"><b>Civic Pulse is an independent AI assistant, not an official government '
+        'website.</b> Always verify information on the linked official government portal before applying.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    provider, api_key = get_ai_credentials()
+    if not provider:
+        st.warning(
+            "No AI key is configured yet, so this page is off. Add **ANTHROPIC_API_KEY** or "
+            "**OPENAI_API_KEY** as a secret to turn it on:\n\n"
+            "- **Streamlit Cloud:** app → Settings → Secrets → add `ANTHROPIC_API_KEY = \"sk-ant-…\"`\n"
+            "- **Render:** service → Environment → Add Environment Variable\n\n"
+            "The key is read on the server only — it is never sent to the browser or shown in this app."
+        )
+        return
+
+    st.session_state.setdefault("ai_messages", [])
+    st.session_state.setdefault("ai_language", "English")
+
+    top_left, top_right = st.columns([2.4, 1])
+    with top_left:
+        language = st.radio("Language", ["English", "हिन्दी", "Hinglish"], horizontal=True, key="ai_language")
+    with top_right:
+        st.write("")
+        if st.session_state.ai_messages:
+            st.button(
+                "Clear chat",
+                use_container_width=True,
+                on_click=lambda: st.session_state.update(ai_messages=[]),
+            )
+
+    st.markdown("**Try an example**")
+    example_columns = st.columns(len(SCHEME_EXAMPLES))
+    queued_prompt = None
+    for column, example in zip(example_columns, SCHEME_EXAMPLES):
+        if column.button(example, use_container_width=True, key=f"ex_{SCHEME_EXAMPLES.index(example)}"):
+            queued_prompt = example
+
+    for message in st.session_state.ai_messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    typed_prompt = st.chat_input("What do you need help with?")
+    prompt = queued_prompt or typed_prompt
+
+    if prompt:
+        st.session_state.ai_messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        system_prompt = SCHEME_SYSTEM_PROMPT.format(
+            language_instruction=_AI_LANGUAGE_INSTRUCTIONS[language]
+        )
+        history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.ai_messages]
+
+        with st.chat_message("assistant"):
+            with st.spinner("Checking schemes and eligibility…"):
+                try:
+                    reply = ask_ai(provider, api_key, system_prompt, history)
+                except requests.exceptions.RequestException:
+                    reply = (
+                        "Civic Pulse is temporarily unable to retrieve this information. "
+                        "Please try again in a moment."
+                    )
+                except Exception:
+                    reply = "Something went wrong while fetching this information. Please try again."
+            st.markdown(reply)
+        st.session_state.ai_messages.append({"role": "assistant", "content": reply})
 
 
 def render_intake() -> None:
@@ -996,6 +1199,8 @@ with st.container(key="body"):
         render_intake()
     elif page == "Evidence library":
         render_evidence()
+    elif page == "Ask Civic Pulse":
+        render_ask_ai()
     elif page == "Governance & DPG":
         render_governance()
     else:
