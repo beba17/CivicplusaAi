@@ -8,7 +8,7 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="JanSetu AI — Public Intelligence",
+    page_title="Civic Pulse — Public Intelligence",
     page_icon="🌉",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -16,7 +16,7 @@ st.set_page_config(
 
 
 LOGO_SVG = """
-<svg width="{size}" height="{size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="JanSetu AI logo">
+<svg width="{size}" height="{size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="Civic Pulse logo">
   <rect width="64" height="64" rx="15" fill="#15313a"/>
   <path d="M9 43 Q32 8 55 43" stroke="#e86f3d" stroke-width="5" fill="none" stroke-linecap="round"/>
   <line x1="7" y1="47" x2="57" y2="47" stroke="#f4f0e8" stroke-width="4" stroke-linecap="round"/>
@@ -63,8 +63,8 @@ BRAND_CSS = (
     ".st-key-body { padding: 44px 6vw 64px; }\n"
     # wordmark
     ".wm { display: flex; align-items: baseline; gap: 10px; }\n"
-    ".wm-dev { font-family: 'Noto Sans Devanagari', sans-serif; font-weight: 700; font-size: 2.1rem; line-height: 1; color: #fe932c !important; }\n"
-    ".wm-en { font-size: .78rem; font-weight: 700; letter-spacing: .24em; color: #131b2e !important; }\n"
+    ".wm-dev { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.55rem; line-height: 1; }\n"
+    ".wm-en { font-size: .78rem; font-weight: 700; letter-spacing: .24em; color: #fe932c !important; margin-left: 2px; }\n"
     ".brand-tag { font-size: .78rem; opacity: .7; margin-top: 6px; }\n"
     ".side-note { background: rgba(232,236,246,.07); border: 1px solid rgba(232,236,246,.16); border-radius: 12px; padding: 12px 14px; font-size: .85rem; line-height: 1.45; }\n"
     ".brand-strip { margin-bottom: 10px; }\n"
@@ -428,7 +428,7 @@ PAGES = ["Control room", "Citizen intake", "Evidence library", "Recommendations"
 
 
 def wordmark() -> str:
-    return '<div class="wm"><span class="wm-dev">सेतु</span><span class="wm-en">JANSETU AI</span></div>'
+    return '<div class="wm"><span class="wm-dev">Civic</span><span class="wm-en">PULSE</span></div>'
 
 
 def go(page: str) -> None:
@@ -469,7 +469,7 @@ def render_hero() -> None:
             + '<div class="hero-title">A national bridge between citizen voice and public infrastructure policy</div>'
             + '<div class="hero-rule"></div>'
             + '<div class="hero-sub">Citizens speak in their own language over voice, SMS or WhatsApp. '
-            'JanSetu translates, classifies and joins every report with census, infrastructure and '
+            'Civic Pulse translates, classifies and joins every report with census, infrastructure and '
             'investment data — then hands policymakers a ranked, traceable list.</div>',
             unsafe_allow_html=True,
         )
@@ -618,7 +618,7 @@ def render_control_room() -> None:
     )
 
 
-APP_NAME = "JanSetu AI"
+APP_NAME = "Civic Pulse"
 
 # Illustrative theme -> department mapping. Real routing needs each State's own department
 # directory and official integrations; the day targets are demo values, not official SLAs.
@@ -900,7 +900,7 @@ def render_governance() -> None:
     render_header("Governance & DPG")
     st.subheader("Built to be a Digital Public Good.")
     st.write(
-        "JanSetu AI is designed so that public teams can trust it, inspect it and reuse it. "
+        "Civic Pulse is designed so that public teams can trust it, inspect it and reuse it. "
         "This page states plainly what the prototype does today and what is still to be done."
     )
 
@@ -968,7 +968,7 @@ def render_governance() -> None:
     st.download_button(
         "Download all signals (CSV)",
         data=export.to_csv(index=False).encode("utf-8"),
-        file_name="jansetu_signals.csv",
+        file_name="civic_pulse_signals.csv",
         mime="text/csv",
         type="primary",
     )
