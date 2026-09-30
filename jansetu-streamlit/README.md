@@ -1,4 +1,4 @@
-# JanSetu AI — Streamlit
+# Civic Plus AI — Streamlit
 
 This is the Streamlit deployment version of the JanSetu AI hackathon prototype.
 
