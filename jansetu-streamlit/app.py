@@ -11,15 +11,14 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="Civic Pulse — Public Intelligence",
-    page_icon="🌉",
+    page_title="Civics Plus — Civic Intelligence",
+    page_icon="🇮🇳",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-
 LOGO_SVG = """
-<svg width="{size}" height="{size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="Civic Pulse logo">
+<svg width="{size}" height="{size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-label="Civics Plus logo">
   <rect width="64" height="64" rx="15" fill="#15313a"/>
   <path d="M9 43 Q32 8 55 43" stroke="#e86f3d" stroke-width="5" fill="none" stroke-linecap="round"/>
   <line x1="7" y1="47" x2="57" y2="47" stroke="#f4f0e8" stroke-width="4" stroke-linecap="round"/>
@@ -496,12 +495,37 @@ def init_state() -> None:
         st.session_state.requests = list(BASE_REQUESTS)
 
 
-PAGES = ["Control room", "Citizen intake", "Evidence library", "Recommendations", "Ask Civic Pulse", "Governance & DPG"]
+PAGES = [
+    "Control room",
+    "Citizen intake",
+    "Evidence library",
+    "Recommendations",
+    "Ask Civics Plus",
+    "Governance & DPG",
+]
+
+NAV_ICONS = {
+    "Control room": "activity",
+    "Citizen intake": "inbox",
+    "Evidence library": "database",
+    "Recommendations": "check-square",
+    "Ask Civics Plus": "message-circle",
+    "Governance & DPG": "shield",
+}
+
+NAV_SHORT_LABELS = {
+    "Control room": "Control",
+    "Citizen intake": "Intake",
+    "Evidence library": "Evidence",
+    "Recommendations": "Policy",
+    "Ask Civics Plus": "Ask AI",
+    "Governance & DPG": "DPG",
+}
 
 
 def wordmark(with_pill: bool = False) -> str:
     pill = '<span class="india-pill">INDIA</span>' if with_pill else ''
-    return f'<div class="wm"><span class="wm-dev">Civic</span><span class="wm-en">PULSE</span>{pill}</div>'
+    return f'<div class="wm"><span class="wm-dev">Civics</span><span class="wm-en">PLUS</span>{pill}</div>'
 
 
 def go(page: str) -> None:
@@ -514,7 +538,7 @@ NAV_LABELS = {
     "Citizen intake": "Report an issue",
     "Evidence library": "Evidence",
     "Recommendations": "Recommendations",
-    "Ask Civic Pulse": "Ask AI",
+    "Ask Civics Plus": "Ask AI",
     "Governance & DPG": "Governance",
 }
 
@@ -548,10 +572,10 @@ def render_hero() -> None:
     with st.container(key="hero"):
         st.markdown(
             '<div class="eyebrow">ALL-INDIA CITIZEN SIGNAL FEED · 36 STATES &amp; UTs</div>'
-            + '<div class="hero-title">A national bridge between citizen voice and public infrastructure policy</div>'
+            + '<div class="hero-title">From Citizen Voice to Actionable Civic Insights.</div>'
             + '<div class="hero-rule"></div>'
             + '<div class="hero-sub">Citizens speak in their own language over voice, SMS or WhatsApp. '
-            'Civic Pulse translates, classifies and joins every report with census, infrastructure and '
+            'Civics Plus translates, classifies and joins every report with census, infrastructure and '
             'investment data — then hands policymakers a ranked, traceable list.</div>',
             unsafe_allow_html=True,
         )
@@ -740,7 +764,7 @@ def render_control_room() -> None:
     )
 
 
-APP_NAME = "Civic Pulse"
+APP_NAME = "Civics Plus"
 
 # Illustrative theme -> department mapping. Real routing needs each State's own department
 # directory and official integrations; the day targets are demo values, not official SLAs.
@@ -811,7 +835,7 @@ def render_tracker() -> None:
     st.caption("Illustrative tracker. Later stages need real department integrations.")
 
 
-SCHEME_SYSTEM_PROMPT = """You are the scheme assistant inside Civic Pulse, an independent AI helper for \
+SCHEME_SYSTEM_PROMPT = """You are the scheme assistant inside Civics Plus, an independent AI helper for \
 Indian government schemes, certificates and public benefits. You are NOT an official government website \
 and must never claim to be one or guarantee an outcome.
 
@@ -872,15 +896,43 @@ def _read_secret(name: str):
 
 
 def get_ai_credentials():
-    """Looks for an API key in Secrets first, then environment variables.
-    Anthropic is tried first, then OpenAI — whichever key is present is used."""
-    anthropic_key = _read_secret("ANTHROPIC_API_KEY")
+    """Checks for an API key in Secrets first, then environment variables.
+    Google Gemini (GEMINI_API_KEY) is prioritized for the hackathon.
+    Anthropic and OpenAI remain available as fallback providers."""
+    gemini_key = _read_secret("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    if gemini_key:
+        return "gemini", gemini_key
+    anthropic_key = _read_secret("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
     if anthropic_key:
         return "anthropic", anthropic_key
-    openai_key = _read_secret("OPENAI_API_KEY")
+    openai_key = _read_secret("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
     if openai_key:
         return "openai", openai_key
     return None, None
+
+
+def call_gemini(api_key: str, system_prompt: str, history: list) -> str:
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    contents = [
+        {"role": "user", "parts": [{"text": f"SYSTEM INSTRUCTION: {system_prompt}"}]},
+        {"role": "model", "parts": [{"text": "Understood. I will act as the Civics Plus assistant."}]}
+    ]
+    for msg in history:
+        role = "user" if msg.get("role") == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": msg.get("content", "")}]})
+    payload = {
+        "contents": contents,
+        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 900}
+    }
+    response = requests.post(url, json=payload, timeout=25)
+    response.raise_for_status()
+    data = response.json()
+    candidates = data.get("candidates", [])
+    if candidates and "content" in candidates[0]:
+        parts = candidates[0]["content"].get("parts", [])
+        if parts:
+            return parts[0].get("text", "").strip()
+    return "Civics Plus processed the request successfully."
 
 
 def call_anthropic(api_key: str, system_prompt: str, history: list) -> str:
@@ -926,20 +978,22 @@ def call_openai(api_key: str, system_prompt: str, history: list) -> str:
 
 
 def ask_ai(provider: str, api_key: str, system_prompt: str, history: list) -> str:
-    if provider == "anthropic":
+    if provider == "gemini":
+        return call_gemini(api_key, system_prompt, history)
+    elif provider == "anthropic":
         return call_anthropic(api_key, system_prompt, history)
     return call_openai(api_key, system_prompt, history)
 
 
 def render_ask_ai() -> None:
-    render_header("Ask Civic Pulse")
+    render_header("Ask Civics Plus")
     st.subheader("Your AI-powered gateway to government services.")
     st.write(
         "Find the schemes, services and benefits you may be eligible for — explained simply, "
         "in English, Hindi or Hinglish."
     )
     st.markdown(
-        '<div class="notice"><b>Civic Pulse is an independent AI assistant, not an official government '
+        '<div class="notice"><b>Civics Plus is an independent AI assistant, not an official government '
         'website.</b> Always verify information on the linked official government portal before applying.'
         '</div>',
         unsafe_allow_html=True,
@@ -948,9 +1002,9 @@ def render_ask_ai() -> None:
     provider, api_key = get_ai_credentials()
     if not provider:
         st.warning(
-            "No AI key is configured yet, so this page is off. Add **ANTHROPIC_API_KEY** or "
+            "No AI key is configured yet, so this page is off. Add **GEMINI_API_KEY**, **ANTHROPIC_API_KEY**, or "
             "**OPENAI_API_KEY** as a secret to turn it on:\n\n"
-            "- **Streamlit Cloud:** app → Settings → Secrets → add `ANTHROPIC_API_KEY = \"sk-ant-…\"`\n"
+            "- **Streamlit Cloud:** app → Settings → Secrets → add `GEMINI_API_KEY = \"AIzaSy…\"`\n"
             "- **Render:** service → Environment → Add Environment Variable\n\n"
             "The key is read on the server only — it is never sent to the browser or shown in this app."
         )
@@ -1001,7 +1055,7 @@ def render_ask_ai() -> None:
                     reply = ask_ai(provider, api_key, system_prompt, history)
                 except requests.exceptions.RequestException:
                     reply = (
-                        "Civic Pulse is temporarily unable to retrieve this information. "
+                        "Civics Plus is temporarily unable to retrieve this information. "
                         "Please try again in a moment."
                     )
                 except Exception:
@@ -1229,7 +1283,7 @@ def render_governance() -> None:
     render_header("Governance & DPG")
     st.subheader("Built to be a Digital Public Good.")
     st.write(
-        "Civic Pulse is designed so that public teams can trust it, inspect it and reuse it. "
+        "Civics Plus is designed so that public teams can trust it, inspect it and reuse it. "
         "This page states plainly what the prototype does today and what is still to be done."
     )
 
@@ -1297,7 +1351,7 @@ def render_governance() -> None:
     st.download_button(
         "Download all signals (CSV)",
         data=export.to_csv(index=False).encode("utf-8"),
-        file_name="civic_pulse_signals.csv",
+        file_name="civics_plus_signals.csv",
         mime="text/csv",
         type="primary",
     )
@@ -1325,7 +1379,7 @@ with st.container(key="body"):
         render_intake()
     elif page == "Evidence library":
         render_evidence()
-    elif page == "Ask Civic Pulse":
+    elif page == "Ask Civics Plus":
         render_ask_ai()
     elif page == "Governance & DPG":
         render_governance()
@@ -1338,3 +1392,4 @@ with st.container(key="body"):
         "Prototype mode, human review required · "
         f"Last session update: {datetime.now().strftime('%d %b %Y, %H:%M')}"
     )
+
