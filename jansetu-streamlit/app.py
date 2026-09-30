@@ -6,7 +6,6 @@ from datetime import datetime
 
 import requests
 
-import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -139,6 +138,13 @@ BRAND_CSS = (
     ".stApp button { min-height: 48px; }\n"
     "[data-baseweb=\"select\"] > div { min-height: 48px; }\n"
     "@media (max-width: 700px) { .st-key-hero { padding: 24px 22px 30px; } .st-key-hero .hero-title { font-size: 2.2rem; } .st-key-hero .eyebrow { margin-top: 36px; } }\n"
+    ".bargraph { display: flex; flex-direction: column; gap: 11px; margin-top: 8px; }\n"
+    ".bargraph-row { display: grid; grid-template-columns: minmax(90px, 34%) 1fr 46px; align-items: center; gap: 10px; font-size: .82rem; }\n"
+    ".bargraph-label { color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n"
+    ".bargraph-track { background: #E2E8F0; border-radius: 999px; height: 10px; overflow: hidden; }\n"
+    ".bargraph-fill { display: block; height: 100%; border-radius: 999px; animation: bargrow .9s cubic-bezier(.16,1,.3,1) forwards; }\n"
+    "@keyframes bargrow { from { width: 0%; } }\n"
+    ".bargraph-value { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }\n"
     "</style>\n"
 )
 
@@ -170,6 +176,8 @@ DARK_OVERRIDE_CSS = (
     ".ticket { background: #131B2E !important; border-color: #263354 !important; }\n"
     ".track { background: #1B2540 !important; color: #CBD5E1 !important; }\n"
     ".side-note { background: rgba(232,236,246,.06) !important; }\n"
+    ".bargraph-track { background: #263354 !important; }\n"
+    ".bargraph-label { color: #8CA0C6 !important; }\n"
     "</style>\n"
 )
 
@@ -183,11 +191,6 @@ def apply_branding() -> None:
 def toggle_theme() -> None:
     st.session_state.theme = "dark" if st.session_state.theme == "light" else "light"
 
-
-def chart_theme_colors() -> dict:
-    if st.session_state.get("theme") == "dark":
-        return {"axis": "#8CA0C6", "grid": "#263354", "muted": "#94A3B8"}
-    return {"axis": "#64748B", "grid": "#E2E8F0", "muted": "#64748B"}
 
 
 
@@ -674,57 +677,51 @@ def render_hotspots() -> None:
     st.button("Capture another signal", type="primary", on_click=go, args=("Citizen intake",))
 
 
+def render_progress_bars(rows: list, max_value: float | None = None) -> None:
+    """Pure CSS animated horizontal bars — no chart library dependency, so it can
+    never break due to a package/Python-version mismatch on the host. rows is a
+    list of (label, value, color-hex)."""
+    if not rows:
+        return
+    top = max_value if max_value else max((v for _, v, _ in rows), default=0) or 1
+    parts = ['<div class="bargraph">']
+    for label, value, color in rows:
+        pct = 0 if top == 0 else round(min(value / top, 1) * 100, 1)
+        parts.append(
+            '<div class="bargraph-row">'
+            f'<div class="bargraph-label">{html.escape(str(label))}</div>'
+            f'<div class="bargraph-track"><span class="bargraph-fill" '
+            f'style="width:{pct}%; background:{color};"></span></div>'
+            f'<div class="bargraph-value">{html.escape(str(value))}</div>'
+            '</div>'
+        )
+    parts.append('</div>')
+    st.markdown("".join(parts), unsafe_allow_html=True)
+
+
 def render_live_pulse() -> None:
-    colors = chart_theme_colors()
     left, right = st.columns([1.4, 1])
 
     with left:
         st.subheader("Live signal pulse")
         st.caption("Recomputed from every signal in this session — including what you just submitted.")
-        counts = (
-            pd.Series([item.get("theme", "Needs triage") for item in st.session_state.requests])
-            .value_counts()
-            .reset_index()
-        )
-        counts.columns = ["theme", "count"]
-        bar_chart = (
-            alt.Chart(counts)
-            .mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6, size=24, color="#D9531E")
-            .encode(
-                x=alt.X("theme:N", sort="-y", title=None, axis=alt.Axis(labelAngle=0, labelFontSize=10.5)),
-                y=alt.Y("count:Q", title="Signals"),
-                tooltip=["theme", "count"],
-            )
-            .properties(height=210)
-            .configure_view(strokeWidth=0)
-            .configure_axis(grid=False, domainColor=colors["grid"], labelColor=colors["axis"], titleColor=colors["axis"])
-        )
-        st.altair_chart(bar_chart, use_container_width=True)
+        counts = pd.Series(
+            [item.get("theme", "Needs triage") for item in st.session_state.requests]
+        ).value_counts()
+        rows = [(theme, int(count), "#D9531E") for theme, count in counts.items()]
+        render_progress_bars(rows)
 
     with right:
         st.subheader("Urgency mix")
         st.caption("Share of signals flagged high priority vs standard.")
-        urgency_counts = (
-            pd.Series([item.get("urgency", "Standard") for item in st.session_state.requests])
-            .value_counts()
-            .reset_index()
-        )
-        urgency_counts.columns = ["urgency", "count"]
-        donut = (
-            alt.Chart(urgency_counts)
-            .mark_arc(innerRadius=52, outerRadius=88, stroke="#FFFFFF", strokeWidth=2)
-            .encode(
-                theta=alt.Theta("count:Q"),
-                color=alt.Color(
-                    "urgency:N",
-                    scale=alt.Scale(domain=["High priority", "Standard"], range=["#D9531E", "#CBD5E1"]),
-                    legend=alt.Legend(title=None, orient="bottom", labelColor=colors["axis"]),
-                ),
-                tooltip=["urgency", "count"],
-            )
-            .properties(height=210)
-        )
-        st.altair_chart(donut, use_container_width=True)
+        urgency_counts = pd.Series(
+            [item.get("urgency", "Standard") for item in st.session_state.requests]
+        ).value_counts()
+        rows = [
+            ("High priority", int(urgency_counts.get("High priority", 0)), "#D9531E"),
+            ("Standard", int(urgency_counts.get("Standard", 0)), "#CBD5E1"),
+        ]
+        render_progress_bars(rows, max_value=max(sum(r[1] for r in rows), 1))
 
 
 def render_control_room() -> None:
@@ -1163,21 +1160,8 @@ def render_recommendations() -> None:
     ]
 
     if recommendations:
-        colors = chart_theme_colors()
-        score_df = pd.DataFrame(recommendations)[["title", "score"]]
-        score_chart = (
-            alt.Chart(score_df)
-            .mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6, size=20, color="#0B2545")
-            .encode(
-                y=alt.Y("title:N", sort="-x", title=None, axis=alt.Axis(labelFontSize=10.5, labelLimit=260)),
-                x=alt.X("score:Q", title="Priority score", scale=alt.Scale(domain=[0, 100])),
-                tooltip=["title", "score"],
-            )
-            .properties(height=34 * len(score_df) + 30)
-            .configure_view(strokeWidth=0)
-            .configure_axis(grid=False, domainColor=colors["grid"], labelColor=colors["axis"], titleColor=colors["axis"])
-        )
-        st.altair_chart(score_chart, use_container_width=True)
+        rows = [(item["title"], item["score"], "#0B2545") for item in recommendations]
+        render_progress_bars(rows, max_value=100)
 
     for item in recommendations:
         with st.container(border=True):
@@ -1210,21 +1194,8 @@ def render_recommendations() -> None:
     if not live_recommendations:
         st.info("No live signals yet — submit one from Citizen intake to see it scored here.")
     else:
-        colors = chart_theme_colors()
-        live_df = pd.DataFrame(live_recommendations)[["type", "score"]]
-        live_chart = (
-            alt.Chart(live_df)
-            .mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6, size=20, color="#D9531E")
-            .encode(
-                y=alt.Y("type:N", sort="-x", title=None, axis=alt.Axis(labelFontSize=10.5)),
-                x=alt.X("score:Q", title="Priority score", scale=alt.Scale(domain=[0, 100])),
-                tooltip=["type", "score"],
-            )
-            .properties(height=34 * len(live_df) + 30)
-            .configure_view(strokeWidth=0)
-            .configure_axis(grid=False, domainColor=colors["grid"], labelColor=colors["axis"], titleColor=colors["axis"])
-        )
-        st.altair_chart(live_chart, use_container_width=True)
+        rows = [(item["type"], item["score"], "#D9531E") for item in live_recommendations]
+        render_progress_bars(rows, max_value=100)
     for item in live_recommendations:
         with st.container(border=True):
             columns = st.columns([3.2, 1, 1])
