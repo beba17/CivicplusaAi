@@ -10,7 +10,7 @@ import streamlit as st
 
 
 # ==============================================================================
-# 1. PAGE SETUP
+# 1. PAGE SETUP (FULL DARK THEME DEFAULT)
 # ==============================================================================
 st.set_page_config(
     page_title="Civics Plus — Civic Intelligence",
@@ -20,195 +20,140 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# 2. STATE INITIALIZATION (Light / Dark Mode + Sessions)
+# 2. CYBER-CIVIC DARK DESIGN SYSTEM (PREMIUM GOVTECH OBSIDIAN PALETTE)
 # ==============================================================================
-if "theme_dark" not in st.session_state:
-    st.session_state.theme_dark = False
-if "current_page" not in st.session_state:
-    st.session_state.current_page = "Control Room"
-
-is_dark = st.session_state.theme_dark
-bg_col = "#090E17" if is_dark else "#F8FAFC"
-card_bg = "#121A2A" if is_dark else "#FFFFFF"
-card_border = "#202E45" if is_dark else "#E2E8F0"
-text_col = "#F8FAFC" if is_dark else "#0F172A"
-sub_col = "#94A3B8" if is_dark else "#64748B"
-
-# ==============================================================================
-# 3. GLOBAL CSS (Applied to Streamlit)
-# ==============================================================================
-st.markdown(
-    f"""
+DARK_THEME_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
 
-html, body, [data-testid="stAppViewContainer"] {{
-    background-color: {bg_col} !important;
-    color: {text_col} !important;
-    font-family: 'Inter', sans-serif !important;
-}}
+/* Main Background & Text */
+html, body, [data-testid="stAppViewContainer"], .stApp {
+    background: #080D1A !important;
+    background-color: #080D1A !important;
+    color: #F1F5F9 !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+}
 
-/* Clean up Streamlit header & toolbar */
-header[data-testid="stHeader"], footer, #MainMenu {{ display: none !important; }}
-.block-container {{ padding: 0 !important; max-width: 100% !important; }}
+/* Hide Streamlit default headers */
+header[data-testid="stHeader"], footer, #MainMenu {
+    display: none !important;
+}
+.block-container, [data-testid="stMainBlockContainer"] {
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+[data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+}
 
-/* Card Styles */
-.civic-card {{
-    background: {card_bg};
-    border: 1.5px solid {card_border};
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}}
-.civic-card:hover {{
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+/* Dark Inputs, Selects, Textareas */
+[data-baseweb="input"], [data-baseweb="textarea"], [data-baseweb="select"] > div, textarea, input {
+    background-color: #0F172A !important;
+    color: #F8FAFC !important;
+    border: 1.5px solid #1E293B !important;
+    border-radius: 10px !important;
+}
+[data-baseweb="input"]:focus-within, [data-baseweb="textarea"]:focus-within {
     border-color: #EA580C !important;
-}}
+    box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25) !important;
+}
 
-.civic-hotspot {{
-    background: {card_bg};
-    border: 1.5px solid {card_border};
-    border-left: 5px solid #EA580C;
+/* Streamlit Buttons in Dark Mode */
+.stButton > button {
+    border-radius: 9px !important;
+    font-weight: 700 !important;
+    font-family: 'Inter', sans-serif !important;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%) !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35) !important;
+}
+.stButton > button[kind="primary"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(234, 88, 12, 0.5) !important;
+}
+.stButton > button[kind="secondary"] {
+    background: #0F172A !important;
+    border: 1px solid #1E293B !important;
+    color: #94A3B8 !important;
+}
+.stButton > button[kind="secondary"]:hover {
+    background: #1E293B !important;
+    border-color: #EA580C !important;
+    color: #FFFFFF !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Expander in Dark Mode */
+[data-testid="stExpander"] {
+    background: #0F172A !important;
+    border: 1px solid #1E293B !important;
+    border-radius: 12px !important;
+    margin-bottom: 10px !important;
+}
+[data-testid="stExpander"] summary {
+    color: #F1F5F9 !important;
+    font-weight: 600 !important;
+}
+
+/* Chat Messages in Dark Mode */
+[data-testid="stChatMessage"] {
+    background: #0F172A !important;
+    border: 1px solid #1E293B !important;
+    border-radius: 12px !important;
+    color: #F1F5F9 !important;
+    margin-bottom: 12px !important;
+}
+
+/* Dark Dataframe */
+[data-testid="stDataFrame"] {
+    background: #0F172A !important;
+    border: 1px solid #1E293B !important;
+    border-radius: 12px !important;
+}
+
+/* Card Hover Elevation */
+.dark-card {
+    background: #0D1527;
+    border: 1px solid #1E2D4A;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.dark-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(234, 88, 12, 0.4);
+    border-color: #EA580C !important;
+}
+
+.hotspot-box {
+    background: #0D1527;
+    border: 1px solid #1E2D4A;
+    border-left: 4.5px solid #EA580C;
     border-radius: 12px;
     padding: 16px 20px;
     margin-bottom: 12px;
-    transition: transform 0.2s ease;
-}}
-.civic-hotspot:hover {{
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.hotspot-box:hover {
     transform: translateX(4px);
-}}
-
-/* Button styling */
-.stButton > button {{
-    border-radius: 8px !important;
-    font-weight: 700 !important;
-    font-family: 'Inter', sans-serif !important;
-}}
-.stButton > button[kind="primary"] {{
-    background: #0B2545 !important;
-    border: 1px solid #134074 !important;
-    color: #FFFFFF !important;
-    box-shadow: 0 2px 8px rgba(11,37,69,0.25) !important;
-}}
-.stButton > button[kind="secondary"]:hover {{
-    border-color: #EA580C !important;
-    color: #EA580C !important;
-}}
+    border-color: #EA580C;
+}
 </style>
-""",
-    unsafe_allow_html=True,
-)
+"""
+
+st.markdown(DARK_THEME_CSS, unsafe_allow_html=True)
 
 # ==============================================================================
-# 4. GUARANTEED NATIVE ANIMATION WIDGETS (SVG Vectors - Works 100% Everywhere)
+# 3. STATE INITIALIZATION
 # ==============================================================================
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "Control Room"
 
-def render_top_ribbon():
-    """Top Hackathon Ribbon with Pulsing Gemini Beacon"""
-    ribbon_html = f"""
-    <div style="background: #0B2545; color: #E2E8F0; padding: 10px 6vw; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); font-family: 'Inter', sans-serif; font-size: 0.8rem;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="background: #EA580C; color: #FFF; font-weight: 800; font-size: 0.65rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;">Official Hackathon Entry</span>
-            <span>Code for Communities Hackathon • <b>Track: Cooperation</b></span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px; color: #38BDF8; font-weight: 600;">
-            <svg width="18" height="18" viewBox="0 0 20 20">
-                <circle cx="10" cy="10" r="5" fill="#38BDF8">
-                    <animate attributeName="r" values="4;7;4" dur="1.5s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="10" cy="10" r="8" fill="none" stroke="#38BDF8" stroke-width="1.5" opacity="0.4">
-                    <animate attributeName="r" values="6;10;6" dur="1.5s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" values="0.4;0.0;0.4" dur="1.5s" repeatCount="indefinite"/>
-                </circle>
-            </svg>
-            <span>Powered by Google Gemini 2.5 Flash • DPG Standard</span>
-        </div>
-    </div>
-    """
-    st.markdown(ribbon_html, unsafe_allow_html=True)
-
-
-def render_audio_equalizer(label: str = "Live Acoustic Dialect Model Active (16kHz HD)"):
-    """Smooth Bouncing 12-bar Soundwave Equalizer (SVG Vector Animation)"""
-    bars_svg = ""
-    height_sequences = [
-        ("8;32;12;28;8", "16;4;14;6;16"),
-        ("14;28;10;34;14", "13;6;15;3;13"),
-        ("22;12;32;18;22", "9;14;4;11;9"),
-        ("10;34;18;28;10", "15;3;11;6;15"),
-        ("28;16;36;12;28", "6;12;2;14;6"),
-        ("16;30;14;34;16", "12;5;13;3;12"),
-        ("32;14;26;10;32", "4;13;7;15;4"),
-        ("12;28;18;32;12", "14;6;11;4;14"),
-        ("24;10;34;14;24", "8;15;3;13;8"),
-        ("18;34;12;28;18", "11;3;14;6;11"),
-        ("30;16;34;14;30", "5;12;3;13;5"),
-        ("14;32;10;26;14", "13;4;15;7;13"),
-    ]
-    for idx, (h_vals, y_vals) in enumerate(height_sequences):
-        x = 12 + idx * 10
-        bars_svg += f"""
-        <rect x="{x}" y="10" width="5" height="20" rx="2.5" fill="url(#waveGrad)">
-            <animate attributeName="height" values="{h_vals}" dur="{0.9 + (idx % 4) * 0.15}s" repeatCount="indefinite"/>
-            <animate attributeName="y" values="{y_vals}" dur="{0.9 + (idx % 4) * 0.15}s" repeatCount="indefinite"/>
-        </rect>
-        """
-
-    svg_content = f"""
-    <div style="background: rgba(234, 88, 12, 0.08); border: 1.5px solid rgba(234, 88, 12, 0.3); border-radius: 10px; padding: 10px 16px; margin: 12px 0 16px 0; display: flex; align-items: center; gap: 14px;">
-        <svg width="140" height="40" viewBox="0 0 140 40">
-            <defs>
-                <linearGradient id="waveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#F97316"/>
-                    <stop offset="100%" stop-color="#EA580C"/>
-                </linearGradient>
-            </defs>
-            {bars_svg}
-        </svg>
-        <div>
-            <div style="font-size: 0.82rem; font-weight: 700; color: #EA580C;">🎙️ {label}</div>
-            <div style="font-size: 0.72rem; color: #64748B;">Processing speech signals across 12 Indian regional dialects</div>
-        </div>
-    </div>
-    """
-    st.markdown(svg_content, unsafe_allow_html=True)
-
-
-def render_radar_loader(message: str = "Structuring Citizen Signal with Google Gemini..."):
-    """Dual-Ring Holographic AI Radar Scanner Loader (SVG Animated)"""
-    slot = st.empty()
-    radar_html = f"""
-    <div style="background: {card_bg}; border: 2px solid #EA580C; border-radius: 14px; padding: 18px 24px; margin: 16px 0; display: flex; align-items: center; gap: 18px; box-shadow: 0 8px 24px rgba(234,88,12,0.2);">
-        <svg width="56" height="56" viewBox="0 0 60 60">
-            <circle cx="30" cy="30" r="24" stroke="rgba(234,88,12,0.2)" stroke-width="4" fill="none" />
-            <circle cx="30" cy="30" r="24" stroke="#EA580C" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="45 105">
-                <animateTransform attributeName="transform" type="rotate" from="0 30 30" to="360 30 30" dur="0.85s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="30" cy="30" r="16" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" fill="none" stroke-dasharray="30 70">
-                <animateTransform attributeName="transform" type="rotate" from="360 30 30" to="0 30 30" dur="1.2s" repeatCount="indefinite"/>
-            </circle>
-            <circle cx="30" cy="30" r="7" fill="#EA580C">
-                <animate attributeName="r" values="5;9;5" dur="1.1s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.1s" repeatCount="indefinite"/>
-            </circle>
-        </svg>
-        <div>
-            <div style="font-size: 1.02rem; font-weight: 800; color: #EA580C; font-family: 'Plus Jakarta Sans', sans-serif;">{message}</div>
-            <div style="font-size: 0.8rem; color: {sub_col}; margin-top: 2px;">Detecting local dialect, stripping PII, matching municipal scheme department...</div>
-        </div>
-    </div>
-    """
-    slot.markdown(radar_html, unsafe_allow_html=True)
-    time.sleep(1.1)
-    slot.empty()
-
-
-# ==============================================================================
-# 5. DATA SETS
-# ==============================================================================
 if "signals" not in st.session_state:
     st.session_state.signals = [
         {
@@ -334,20 +279,126 @@ RECOMMENDATIONS = [
 ]
 
 # ==============================================================================
-# 6. HEADER & NAVIGATION BAR
+# 4. NATIVE ANIMATED SVG WIDGETS (100% VISIBLE IN ANY ENVIRONMENT)
 # ==============================================================================
-render_top_ribbon()
 
-nav_cols = st.columns([2.6, 1.0, 1.0, 1.0, 1.1, 1.0, 1.1, 0.6])
+def render_top_banner():
+    banner_html = """
+    <div style="background: #050B14; color: #E2E8F0; padding: 10px 6vw; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E293B; font-size: 0.8rem;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%); color: #FFF; font-weight: 800; font-size: 0.65rem; padding: 3px 9px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 2px 6px rgba(234,88,12,0.4);">
+                Official Hackathon Entry
+            </span>
+            <span style="color: #94A3B8;">Code for Communities Hackathon • <b style="color: #FFF;">Track: Cooperation</b></span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; color: #38BDF8; font-weight: 600;">
+            <svg width="20" height="20" viewBox="0 0 20 20">
+                <circle cx="10" cy="10" r="5" fill="#38BDF8">
+                    <animate attributeName="r" values="4;7;4" dur="1.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="10" cy="10" r="8" fill="none" stroke="#38BDF8" stroke-width="1.5" opacity="0.4">
+                    <animate attributeName="r" values="6;10;6" dur="1.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.4;0.0;0.4" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
+            <span>Powered by Google Gemini 2.5 Flash • DPG Standard</span>
+        </div>
+    </div>
+    """
+    st.markdown(banner_html, unsafe_allow_html=True)
+
+
+def render_soundwave_visualizer():
+    bars_svg = ""
+    sequences = [
+        ("8;34;12;28;8", "16;3;14;6;16"),
+        ("16;28;10;36;16", "12;6;15;2;12"),
+        ("24;14;34;18;24", "8;13;3;11;8"),
+        ("12;36;16;30;12", "14;2;12;5;14"),
+        ("30;18;38;14;30", "5;11;1;13;5"),
+        ("18;32;14;36;18", "11;4;13;2;11"),
+        ("34;16;28;12;34", "3;12;6;14;3"),
+        ("14;30;20;34;14", "13;5;10;3;13"),
+        ("26;12;36;16;26", "7;14;2;12;7"),
+        ("20;36;14;30;20", "10;2;13;5;10"),
+        ("32;18;36;16;32", "4;11;2;12;4"),
+        ("16;34;12;28;16", "12;3;14;6;12"),
+    ]
+    for i, (h, y) in enumerate(sequences):
+        x = 10 + i * 10
+        bars_svg += f"""
+        <rect x="{x}" y="10" width="5" height="20" rx="2.5" fill="url(#neonOrange)">
+            <animate attributeName="height" values="{h}" dur="{0.85 + (i % 4) * 0.15}s" repeatCount="indefinite"/>
+            <animate attributeName="y" values="{y}" dur="{0.85 + (i % 4) * 0.15}s" repeatCount="indefinite"/>
+        </rect>
+        """
+
+    svg_code = f"""
+    <div style="background: rgba(234, 88, 12, 0.1); border: 1.5px solid rgba(234, 88, 12, 0.35); border-radius: 12px; padding: 12px 18px; margin: 12px 0 16px 0; display: flex; align-items: center; gap: 16px;">
+        <svg width="140" height="42" viewBox="0 0 140 42">
+            <defs>
+                <linearGradient id="neonOrange" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#FB923C"/>
+                    <stop offset="100%" stop-color="#EA580C"/>
+                </linearGradient>
+            </defs>
+            {bars_svg}
+        </svg>
+        <div>
+            <div style="font-size: 0.85rem; font-weight: 800; color: #FB923C;">🎙️ 16kHz HD Multilingual Dialect Model Active</div>
+            <div style="font-size: 0.74rem; color: #94A3B8;">Processing acoustic speech tokens with zero cloud audio leakage (PII Scrubbed)</div>
+        </div>
+    </div>
+    """
+    st.markdown(svg_code, unsafe_allow_html=True)
+
+
+def render_radar_loader(title: str = "Structuring Citizen Signal with Google Gemini..."):
+    slot = st.empty()
+    radar_html = f"""
+    <div style="background: #0F172A; border: 2px solid #EA580C; border-radius: 14px; padding: 20px 24px; margin: 16px 0; display: flex; align-items: center; gap: 20px; box-shadow: 0 8px 30px rgba(234,88,12,0.25);">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+            <circle cx="30" cy="30" r="25" stroke="rgba(234,88,12,0.2)" stroke-width="4" fill="none" />
+            <circle cx="30" cy="30" r="25" stroke="#EA580C" stroke-width="4" stroke-linecap="round" fill="none" stroke-dasharray="45 110">
+                <animateTransform attributeName="transform" type="rotate" from="0 30 30" to="360 30 30" dur="0.8s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="30" cy="30" r="16" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" fill="none" stroke-dasharray="30 70">
+                <animateTransform attributeName="transform" type="rotate" from="360 30 30" to="0 30 30" dur="1.2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="30" cy="30" r="8" fill="#EA580C">
+                <animate attributeName="r" values="6;10;6" dur="1.1s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.1s" repeatCount="indefinite"/>
+            </circle>
+        </svg>
+        <div>
+            <div style="font-size: 1.05rem; font-weight: 800; color: #FB923C; font-family: 'Plus Jakarta Sans', sans-serif;">{title}</div>
+            <div style="font-size: 0.82rem; color: #94A3B8; margin-top: 2px;">Extracting geo-entities, stripping phone/names, routing to district department...</div>
+        </div>
+    </div>
+    """
+    slot.markdown(radar_html, unsafe_allow_html=True)
+    time.sleep(1.1)
+    slot.empty()
+
+
+# ==============================================================================
+# 5. NAVIGATION BAR
+# ==============================================================================
+render_top_banner()
+
+nav_cols = st.columns([2.8, 1.0, 1.0, 1.0, 1.1, 1.0, 1.1])
 
 with nav_cols[0]:
     st.markdown(
-        f"""
+        """
         <div style="padding: 10px 0 0 6vw; display: flex; align-items: baseline; gap: 8px;">
-            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5rem; font-weight: 800; color: {text_col};">
+            <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.55rem; font-weight: 800; color: #F8FAFC; letter-spacing: -0.02em;">
                 Civics <span style="color: #EA580C;">Plus</span>
             </span>
-            <span style="font-size: 0.68rem; font-weight: 700; background: rgba(234,88,12,0.12); color: #EA580C; padding: 2px 7px; border-radius: 999px; border: 1px solid rgba(234,88,12,0.25);">v2.5</span>
+            <span style="font-size: 0.68rem; font-weight: 800; background: rgba(234,88,12,0.2); color: #FB923C; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(234,88,12,0.4);">
+                DARK PROTOTYPE
+            </span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -358,33 +409,27 @@ PAGES = ["Control Room", "Citizen Intake", "Evidence Library", "Recommendations"
 for idx, p_name in enumerate(PAGES, start=1):
     with nav_cols[idx]:
         is_active = st.session_state.current_page == p_name
-        if st.button(p_name, key=f"nav_p_{p_name}", type="primary" if is_active else "secondary", use_container_width=True):
+        if st.button(p_name, key=f"nav_{p_name}", type="primary" if is_active else "secondary", use_container_width=True):
             st.session_state.current_page = p_name
             st.rerun()
 
-with nav_cols[-1]:
-    t_icon = "☀️ Light" if is_dark else "🌙 Dark"
-    if st.button(t_icon, key="theme_toggle", help="Toggle Light / Dark Mode", use_container_width=True):
-        st.session_state.theme_dark = not is_dark
-        st.rerun()
-
 # ==============================================================================
-# 7. TAB 1: CONTROL ROOM
+# 6. TAB 1: CONTROL ROOM (DARK COCKPIT DASHBOARD)
 # ==============================================================================
-active_page = st.session_state.current_page
+page = st.session_state.current_page
 
-if active_page == "Control Room":
+if page == "Control Room":
     st.markdown(
         """
-        <div style="background: linear-gradient(135deg, #0B2545 0%, #134074 60%, #1D4E89 100%); border-radius: 16px; padding: 36px 42px; color: #FFFFFF; margin: 18px 6vw; position: relative; overflow: hidden; box-shadow: 0 12px 30px rgba(11,37,69,0.2);">
-            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); padding: 5px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; color: #FFEDD5; margin-bottom: 14px;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #EA580C; box-shadow: 0 0 8px #EA580C;"></span>
+        <div style="background: linear-gradient(135deg, #0B192C 0%, #132742 55%, #18365E 100%); border: 1px solid #1E3A8A; border-radius: 18px; padding: 38px 44px; color: #FFFFFF; margin: 18px 6vw; position: relative; overflow: hidden; box-shadow: 0 12px 36px rgba(0,0,0,0.5);">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); padding: 5px 14px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; color: #FFEDD5; margin-bottom: 14px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #EA580C; box-shadow: 0 0 10px #EA580C;"></span>
                 AI-Powered Participatory Civic Prioritization
             </div>
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.2rem; font-weight: 800; line-height: 1.15; margin-bottom: 12px;">
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.3rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.025em; margin-bottom: 12px;">
                 From Citizen Voice to Actionable Civic Insights.
             </div>
-            <div style="font-size: 1rem; color: #CBD5E1; line-height: 1.6; max-width: 820px;">
+            <div style="font-size: 1.02rem; color: #94A3B8; line-height: 1.65; max-width: 840px;">
                 Civics Plus captures unstructured citizen voice notes and messages in local dialects,
                 synthesizes geographic demand hotspots, and drafts explainable infrastructure work proposals with
                 mandatory human review.
@@ -394,96 +439,96 @@ if active_page == "Control Room":
         unsafe_allow_html=True,
     )
 
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
+    m1, m2, m3, m4 = st.columns(4)
+    with m1:
         st.markdown(
             f"""
-            <div class="civic-card" style="margin: 0 6vw 14px 6vw;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: {sub_col}; text-transform: uppercase;">Total Signals Ingested</div>
-                <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; color: {text_col}; margin: 4px 0;">{len(st.session_state.signals) + 4276:,}</div>
-                <div style="font-size: 0.75rem; font-weight: 600; color: #10B981;">↑ 18% this week across 36 States</div>
+            <div class="dark-card" style="margin: 0 6vw 14px 6vw;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">Total Signals Ingested</div>
+                <div style="font-family: 'Plus Jakarta Sans'; font-size: 2rem; font-weight: 800; color: #F8FAFC; margin: 4px 0;">{len(st.session_state.signals) + 4276:,}</div>
+                <div style="font-size: 0.76rem; font-weight: 600; color: #10B981;">↑ 18% this week across 36 States</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-    with c2:
+    with m2:
         st.markdown(
-            f"""
-            <div class="civic-card" style="margin: 0 6vw 14px 6vw;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: {sub_col}; text-transform: uppercase;">Top Demand Theme</div>
-                <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; color: #EA580C; margin: 4px 0;">Water Access</div>
-                <div style="font-size: 0.75rem; font-weight: 600; color: #EA580C;">1,284 Signals in Barmer & Jaipur</div>
+            """
+            <div class="dark-card" style="margin: 0 6vw 14px 6vw;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">Top Demand Theme</div>
+                <div style="font-family: 'Plus Jakarta Sans'; font-size: 2rem; font-weight: 800; color: #FB923C; margin: 4px 0;">Water Access</div>
+                <div style="font-size: 0.76rem; font-weight: 600; color: #FB923C;">1,284 Signals in Barmer & Jaipur</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-    with c3:
+    with m3:
         st.markdown(
-            f"""
-            <div class="civic-card" style="margin: 0 6vw 14px 6vw;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: {sub_col}; text-transform: uppercase;">Actionable Budget Pipeline</div>
-                <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; color: {text_col}; margin: 4px 0;">₹57.2 Lakh</div>
-                <div style="font-size: 0.75rem; font-weight: 600; color: #10B981;">3 Verified Community Proposals</div>
+            """
+            <div class="dark-card" style="margin: 0 6vw 14px 6vw;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">Actionable Budget Pipeline</div>
+                <div style="font-family: 'Plus Jakarta Sans'; font-size: 2rem; font-weight: 800; color: #F8FAFC; margin: 4px 0;">₹57.2 Lakh</div>
+                <div style="font-size: 0.76rem; font-weight: 600; color: #10B981;">3 Verified Community Proposals</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
-    with c4:
+    with m4:
         st.markdown(
-            f"""
-            <div class="civic-card" style="margin: 0 6vw 14px 6vw;">
-                <div style="font-size: 0.75rem; font-weight: 700; color: {sub_col}; text-transform: uppercase;">Human Sign-Off Rate</div>
-                <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; color: #10B981; margin: 4px 0;">100%</div>
-                <div style="font-size: 0.75rem; font-weight: 600; color: #10B981;">Zero automated spending</div>
+            """
+            <div class="dark-card" style="margin: 0 6vw 14px 6vw;">
+                <div style="font-size: 0.74rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em;">Human Sign-Off Rate</div>
+                <div style="font-family: 'Plus Jakarta Sans'; font-size: 2rem; font-weight: 800; color: #10B981; margin: 4px 0;">100%</div>
+                <div style="font-size: 0.76rem; font-weight: 600; color: #10B981;">Zero automated public spending</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    g_left, g_right = st.columns([1.5, 1])
+    c_left, c_right = st.columns([1.5, 1])
 
-    with g_left:
-        st.markdown(f'<div style="font-family: \'Plus Jakarta Sans\'; font-size: 1.25rem; font-weight: 800; color: {text_col}; margin: 12px 6vw 4px 6vw;">Civic Demand Hotspots</div>', unsafe_allow_html=True)
-        st.markdown(f'<div style="font-size: 0.84rem; color: {sub_col}; margin: 0 6vw 16px 6vw;">Semantically clustered by Gemini from voice notes & citizen intake.</div>', unsafe_allow_html=True)
+    with c_left:
+        st.markdown('<div style="font-family: \'Plus Jakarta Sans\'; font-size: 1.3rem; font-weight: 800; color: #F8FAFC; margin: 12px 6vw 4px 6vw;">Civic Demand Hotspots</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 0.85rem; color: #94A3B8; margin: 0 6vw 16px 6vw;">Semantically clustered by Gemini from voice notes & citizen intake.</div>', unsafe_allow_html=True)
 
         for hs in HOTSPOTS:
             st.markdown(
                 f"""
-                <div class="civic-hotspot" style="margin: 0 6vw 14px 6vw;">
+                <div class="hotspot-box" style="margin: 0 6vw 14px 6vw;">
                     <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                        <span style="font-family: 'Plus Jakarta Sans'; font-weight: 700; font-size: 1.05rem; color: {text_col};">{hs['place']}</span>
-                        <span style="background: rgba(234,88,12,0.12); color: #EA580C; font-weight: 700; font-size: 0.75rem; padding: 3px 9px; border-radius: 999px;">{hs['count']} Signals</span>
+                        <span style="font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 1.1rem; color: #F8FAFC;">{hs['place']}</span>
+                        <span style="background: rgba(234,88,12,0.18); color: #FB923C; font-weight: 700; font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(234,88,12,0.4);">{hs['count']} Signals</span>
                     </div>
-                    <div style="font-size: 0.85rem; color: {sub_col}; margin: 4px 0;">District: {hs['district']} • {hs['sources']} Multi-Source Channels</div>
-                    <div style="font-size: 0.9rem; font-weight: 600; color: {text_col}; margin: 6px 0;">Need: {hs['need']}</div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; padding-top: 8px; border-top: 1px solid {card_border};">
-                        <span style="color: #059669;">Estimated Budget: {hs['budget']}</span>
-                        <span style="color: #DC2626;">Priority: {hs['urgency']}</span>
+                    <div style="font-size: 0.85rem; color: #94A3B8; margin: 5px 0;">District: {hs['district']} • {hs['sources']} Multi-Source Channels</div>
+                    <div style="font-size: 0.92rem; font-weight: 600; color: #E2E8F0; margin: 6px 0;">Need: {hs['need']}</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 700; padding-top: 8px; border-top: 1px solid #1E2D4A;">
+                        <span style="color: #34D399;">Estimated Budget: {hs['budget']}</span>
+                        <span style="color: #F87171;">Priority: {hs['urgency']}</span>
                     </div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-    with g_right:
-        st.markdown(f'<div style="font-family: \'Plus Jakarta Sans\'; font-size: 1.25rem; font-weight: 800; color: {text_col}; margin: 12px 0 4px 0;">Live Ingestion Stream</div>', unsafe_allow_html=True)
-        st.markdown(f'<div style="font-size: 0.84rem; color: {sub_col}; margin-bottom: 16px;">Real-time dialect inputs with language preserved.</div>', unsafe_allow_html=True)
+    with c_right:
+        st.markdown('<div style="font-family: \'Plus Jakarta Sans\'; font-size: 1.3rem; font-weight: 800; color: #F8FAFC; margin: 12px 0 4px 0;">Live Ingestion Stream</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size: 0.85rem; color: #94A3B8; margin-bottom: 16px;">Real-time dialect inputs with language preserved.</div>', unsafe_allow_html=True)
 
         for sig in st.session_state.signals[:4]:
             st.markdown(
                 f"""
-                <div class="civic-card" style="margin-bottom: 12px; padding: 14px 18px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.74rem; color: {sub_col}; font-weight: 700;">
+                <div class="dark-card" style="margin-bottom: 12px; padding: 16px 18px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94A3B8; font-weight: 700;">
                         <span>{sig['id']} • {sig['place']}</span>
                         <span>{sig['time']}</span>
                     </div>
-                    <div style="font-size: 0.88rem; font-style: italic; margin: 8px 0; border-left: 3px solid #EA580C; padding-left: 10px; color: {text_col};">
+                    <div style="font-size: 0.88rem; font-style: italic; margin: 8px 0; border-left: 3px solid #EA580C; padding-left: 10px; color: #F1F5F9;">
                         "{sig['quote']}"
                     </div>
                     <div style="display: flex; gap: 6px; margin-top: 6px;">
-                        <span style="background: rgba(56,189,248,0.12); color: #0284c7; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">{sig['language']}</span>
-                        <span style="background: rgba(234,88,12,0.12); color: #EA580C; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">{sig['theme']}</span>
-                        <span style="background: rgba(16,185,129,0.12); color: #059669; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">{sig['status']}</span>
+                        <span style="background: rgba(56,189,248,0.15); color: #38BDF8; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(56,189,248,0.3);">{sig['language']}</span>
+                        <span style="background: rgba(234,88,12,0.15); color: #FB923C; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(234,88,12,0.3);">{sig['theme']}</span>
+                        <span style="background: rgba(16,185,129,0.15); color: #34D399; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(16,185,129,0.3);">{sig['status']}</span>
                     </div>
                 </div>
                 """,
@@ -491,14 +536,14 @@ if active_page == "Control Room":
             )
 
 # ==============================================================================
-# 8. TAB 2: CITIZEN INTAKE (WITH ANIMATED SOUNDWAVE & RADAR LOADER)
+# 7. TAB 2: CITIZEN INTAKE (DARK VOICE INGESTION)
 # ==============================================================================
-elif active_page == "Citizen Intake":
+elif page == "Citizen Intake":
     st.markdown(
         """
-        <div style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%); border-radius: 16px; padding: 28px 36px; color: #FFF; margin: 18px 6vw;">
-            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px;">Citizen Intake & Voice Capture</div>
-            <div style="font-size: 0.95rem; color: #CBD5E1;">Speak or type in your native tongue. Civics Plus captures the voice, strips PII, and structures the civic request.</div>
+        <div style="background: linear-gradient(135deg, #0B192C 0%, #132742 100%); border: 1px solid #1E3A8A; border-radius: 18px; padding: 30px 40px; color: #FFF; margin: 18px 6vw;">
+            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; margin-bottom: 6px;">Citizen Intake & Voice Capture</div>
+            <div style="font-size: 0.98rem; color: #94A3B8;">Speak or type in your native tongue. Civics Plus captures the voice, strips PII, and structures the civic request.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -507,8 +552,8 @@ elif active_page == "Citizen Intake":
     in_left, in_right = st.columns([1.3, 1])
 
     with in_left:
-        with st.form("intake_form_main"):
-            st.markdown(f"**1. Select Channel & Dialect**")
+        with st.form("dark_intake_form"):
+            st.markdown("**1. Select Channel & Dialect**")
             c1, c2, c3 = st.columns(3)
             with c1:
                 lang_sel = st.selectbox("Language / Dialect", ["Hindi (हिंदी)", "Bengali (বাংলা)", "Marathi (मराठी)", "Tamil (தமிழ்)", "English"], index=0)
@@ -518,7 +563,7 @@ elif active_page == "Citizen Intake":
                 loc_sel = st.text_input("Village / Town", value="Bassi, Jaipur")
 
             if chan_sel == "Voice Note":
-                render_audio_equalizer("16kHz HD Multilingual Dialect Acoustic Model Active")
+                render_soundwave_visualizer()
                 st.audio_input("Record Voice Note (Optional)")
 
             text_input = st.text_area(
@@ -555,19 +600,19 @@ elif active_page == "Citizen Intake":
 
     with in_right:
         st.markdown(
-            f"""
-            <div class="civic-card" style="margin-right: 6vw;">
-                <div style="font-size: 0.78rem; font-weight: 700; color: {sub_col}; text-transform: uppercase;">AI Structured Output Preview</div>
+            """
+            <div class="dark-card" style="margin-right: 6vw;">
+                <div style="font-size: 0.78rem; font-weight: 700; color: #94A3B8; text-transform: uppercase;">AI Structured Output Preview</div>
                 <div style="margin: 14px 0; display: flex; gap: 8px;">
-                    <span style="background: rgba(234,88,12,0.14); color: #EA580C; padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700;">Healthcare</span>
-                    <span style="background: rgba(56,189,248,0.14); color: #0284c7; padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700;">State Health Dept.</span>
-                    <span style="background: rgba(16,185,129,0.14); color: #059669; padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700;">High Priority</span>
+                    <span style="background: rgba(234,88,12,0.2); color: #FB923C; padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; border: 1px solid rgba(234,88,12,0.4);">Healthcare</span>
+                    <span style="background: rgba(56,189,248,0.2); color: #38BDF8; padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; border: 1px solid rgba(56,189,248,0.4);">State Health Dept.</span>
+                    <span style="background: rgba(16,185,129,0.2); color: #34D399; padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; border: 1px solid rgba(16,185,129,0.4);">High Priority</span>
                 </div>
-                <div style="font-size: 0.88rem; line-height: 1.6; color: {text_col}; margin-bottom: 12px;">
+                <div style="font-size: 0.88rem; line-height: 1.6; color: #F1F5F9; margin-bottom: 12px;">
                     <b>AI Classification:</b> Classified under <i>Rural Primary Health Outreach</i>. 
                     Original dialect quote preserved alongside English translation for auditability.
                 </div>
-                <div style="background: rgba(234,88,12,0.08); border-left: 3px solid #EA580C; padding: 12px; border-radius: 8px; font-size: 0.8rem; color: {text_col};">
+                <div style="background: rgba(234,88,12,0.1); border-left: 3px solid #EA580C; padding: 12px; border-radius: 8px; font-size: 0.8rem; color: #F1F5F9;">
                     <b>Auditing Pathway:</b> When 15+ similar signals cluster in this block, an automated recommendation is drafted for District Magistrate review.
                 </div>
             </div>
@@ -576,14 +621,14 @@ elif active_page == "Citizen Intake":
         )
 
 # ==============================================================================
-# 9. TAB 3: EVIDENCE LIBRARY
+# 8. TAB 3: EVIDENCE LIBRARY (AUDIT VAULT)
 # ==============================================================================
-elif active_page == "Evidence Library":
+elif page == "Evidence Library":
     st.markdown(
         """
-        <div style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%); border-radius: 16px; padding: 28px 36px; color: #FFF; margin: 18px 6vw;">
-            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px;">Evidence Library & Auditing Vault</div>
-            <div style="font-size: 0.95rem; color: #CBD5E1;">Inspect citizen reports with original recordings, translations, and timestamps attached. Every recommendation is 100% traceable.</div>
+        <div style="background: linear-gradient(135deg, #0B192C 0%, #132742 100%); border: 1px solid #1E3A8A; border-radius: 18px; padding: 30px 40px; color: #FFF; margin: 18px 6vw;">
+            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; margin-bottom: 6px;">Evidence Library & Auditing Vault</div>
+            <div style="font-size: 0.98rem; color: #94A3B8;">Inspect citizen reports with original recordings, translations, and timestamps attached. Every recommendation is 100% traceable.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -614,14 +659,14 @@ elif active_page == "Evidence Library":
             c_c.write(f"**Urgency:** {s['urgency']}")
 
 # ==============================================================================
-# 10. TAB 4: RECOMMENDATIONS
+# 9. TAB 4: RECOMMENDATIONS
 # ==============================================================================
-elif active_page == "Recommendations":
+elif page == "Recommendations":
     st.markdown(
         """
-        <div style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%); border-radius: 16px; padding: 28px 36px; color: #FFF; margin: 18px 6vw;">
-            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px;">Policy Recommendations & Budget Allocation</div>
-            <div style="font-size: 0.95rem; color: #CBD5E1;">Ranked public works proposals generated from aggregated citizen evidence. Human planners hold final approval.</div>
+        <div style="background: linear-gradient(135deg, #0B192C 0%, #132742 100%); border: 1px solid #1E3A8A; border-radius: 18px; padding: 30px 40px; color: #FFF; margin: 18px 6vw;">
+            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; margin-bottom: 6px;">Policy Recommendations & Budget Allocation</div>
+            <div style="font-size: 0.98rem; color: #94A3B8;">Ranked public works proposals generated from aggregated citizen evidence. Human planners hold final approval.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -630,25 +675,25 @@ elif active_page == "Recommendations":
     for rec in RECOMMENDATIONS:
         st.markdown(
             f"""
-            <div class="civic-card" style="margin: 0 6vw 18px 6vw;">
+            <div class="dark-card" style="margin: 0 6vw 18px 6vw;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline;">
                     <div>
-                        <span style="background: rgba(56,189,248,0.12); color: #0284c7; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">{rec['id']}</span>
-                        <span style="background: rgba(234,88,12,0.12); color: #EA580C; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700;">{rec['theme']}</span>
-                        <h3 style="margin: 8px 0 4px 0; font-family: 'Plus Jakarta Sans', sans-serif; color: {text_col};">{rec['title']}</h3>
-                        <div style="font-size: 0.85rem; color: {sub_col};">{rec['place']} • Designated: {rec['department']}</div>
+                        <span style="background: rgba(56,189,248,0.18); color: #38BDF8; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(56,189,248,0.3);">{rec['id']}</span>
+                        <span style="background: rgba(234,88,12,0.18); color: #FB923C; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(234,88,12,0.3);">{rec['theme']}</span>
+                        <h3 style="margin: 8px 0 4px 0; font-family: 'Plus Jakarta Sans', sans-serif; color: #F8FAFC;">{rec['title']}</h3>
+                        <div style="font-size: 0.85rem; color: #94A3B8;">{rec['place']} • Designated: {rec['department']}</div>
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 1.5rem; font-weight: 800; color: #EA580C;">{rec['score']}/100</div>
-                        <div style="font-size: 0.72rem; font-weight: 700; color: #10B981;">Confidence Score</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: #FB923C;">{rec['score']}/100</div>
+                        <div style="font-size: 0.72rem; font-weight: 700; color: #34D399;">Confidence Score</div>
                     </div>
                 </div>
-                <div style="background: rgba(11,37,69,0.04); padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-size: 0.88rem; color: {text_col};">
+                <div style="background: rgba(15,23,42,0.8); border: 1px solid #1E2D4A; padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-size: 0.88rem; color: #E2E8F0;">
                     <b>Evidence Basis:</b> {rec['basis']}
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid {card_border}; padding-top: 10px;">
-                    <span style="font-weight: 700; font-size: 0.95rem; color: {text_col};">Budget: {rec['budget']}</span>
-                    <span style="background: rgba(16,185,129,0.12); color: #059669; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700;">{rec['status']}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1E2D4A; padding-top: 10px;">
+                    <span style="font-weight: 700; font-size: 0.95rem; color: #F8FAFC;">Budget: {rec['budget']}</span>
+                    <span style="background: rgba(16,185,129,0.18); color: #34D399; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(16,185,129,0.3);">{rec['status']}</span>
                 </div>
             </div>
             """,
@@ -656,14 +701,14 @@ elif active_page == "Recommendations":
         )
 
 # ==============================================================================
-# 11. TAB 5: ASK CIVICS PLUS (GEMINI AI CHAT)
+# 10. TAB 5: ASK CIVICS PLUS (GOOGLE GEMINI AI CHAT)
 # ==============================================================================
-elif active_page == "Ask Civics Plus":
+elif page == "Ask Civics Plus":
     st.markdown(
         """
-        <div style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%); border-radius: 16px; padding: 28px 36px; color: #FFF; margin: 18px 6vw;">
-            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px;">Ask Civics Plus AI Assistant</div>
-            <div style="font-size: 0.95rem; color: #CBD5E1;">Directly query public welfare schemes, government certificates, and local grievance escalation pathways using Google Gemini 2.5 Flash.</div>
+        <div style="background: linear-gradient(135deg, #0B192C 0%, #132742 100%); border: 1px solid #1E3A8A; border-radius: 18px; padding: 30px 40px; color: #FFF; margin: 18px 6vw;">
+            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; margin-bottom: 6px;">Ask Civics Plus AI Assistant</div>
+            <div style="font-size: 0.98rem; color: #94A3B8;">Directly query public welfare schemes, government certificates, and local grievance escalation pathways using Google Gemini 2.5 Flash.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -714,14 +759,14 @@ elif active_page == "Ask Civics Plus":
             st.session_state.ai_chat.append({"role": "assistant", "content": reply})
 
 # ==============================================================================
-# 12. TAB 6: GOVERNANCE & DPG
+# 11. TAB 6: GOVERNANCE & DPG
 # ==============================================================================
-elif active_page == "Governance & DPG":
+elif page == "Governance & DPG":
     st.markdown(
         """
-        <div style="background: linear-gradient(135deg, #0B2545 0%, #134074 100%); border-radius: 16px; padding: 28px 36px; color: #FFF; margin: 18px 6vw;">
-            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px;">Digital Public Good (DPG) Governance</div>
-            <div style="font-size: 0.95rem; color: #CBD5E1;">Civics Plus is built as an open, accountable public good strictly aligned with the 9 DPG Standard Indicators.</div>
+        <div style="background: linear-gradient(135deg, #0B192C 0%, #132742 100%); border: 1px solid #1E3A8A; border-radius: 18px; padding: 30px 40px; color: #FFF; margin: 18px 6vw;">
+            <div style="font-family: 'Plus Jakarta Sans'; font-size: 1.9rem; font-weight: 800; margin-bottom: 6px;">Digital Public Good (DPG) Governance</div>
+            <div style="font-size: 0.98rem; color: #94A3B8;">Civics Plus is built as an open, accountable public good strictly aligned with the 9 DPG Standard Indicators.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -751,10 +796,10 @@ elif active_page == "Governance & DPG":
 
 # Footer
 st.markdown(
-    f"""
-    <div style="margin: 40px 6vw 20px 6vw; padding-top: 16px; border-top: 1px solid {card_border}; display: flex; justify-content: space-between; font-size: 0.75rem; color: {sub_col};">
+    """
+    <div style="margin: 40px 6vw 20px 6vw; padding-top: 16px; border-top: 1px solid #1E2D4A; display: flex; justify-content: space-between; font-size: 0.75rem; color: #94A3B8;">
         <span>Civics Plus • Code for Communities Hackathon (Cooperation Track)</span>
-        <span>From Citizen Voice to Actionable Civic Insights • {datetime.now().strftime('%d %b %Y')}</span>
+        <span>From Citizen Voice to Actionable Civic Insights • Cyber-Civic Dark Design</span>
     </div>
     """,
     unsafe_allow_html=True,
